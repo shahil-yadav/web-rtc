@@ -15,12 +15,12 @@ interface CreateRoomProps {
 
 function CreateRoom(props: CreateRoomProps & PeerStreams) {
   const db = useFirestore()
-  const peerConnection = usePeerConnection()
   const remoteStream = useRemoteStream()
   const localStream = useLocalStream()
 
   async function handleCreateRoom() {
     props.setDisabled((prev) => ({ ...prev, create: true }))
+    const peerConnection = await usePeerConnection()
 
     /** 0. Create a document(room) in the collection of rooms */
     const roomRef = collection(db, 'rooms')

@@ -36,7 +36,7 @@ function JoinRoom(props: JoinRoomProps) {
 
     const document = await getDoc(doc(db, 'rooms', roomID))
     if (document.exists()) {
-      const peerConnection = usePeerConnection()
+      const peerConnection = await usePeerConnection()
 
       /** 1. Add local streams to the peer connection[START] 👇 */
       localStream.getTracks().forEach((track) => {
