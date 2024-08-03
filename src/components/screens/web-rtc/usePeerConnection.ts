@@ -27,9 +27,16 @@ function registerPeerConnectionListeners(peerConnection: RTCPeerConnection) {
   })
 }
 
-export function usePeerConnection() {
+export async function usePeerConnection() {
   if (!peerConnection) {
-    peerConnection = new RTCPeerConnection(config)
+    // Calling the REST API TO fetch the TURN Server Credentials
+    const response = await fetch(
+      'https://shahilyadav.metered.live/api/v1/turn/credentials?apiKey=8d1046e721cfe80f173adb5e8a94d48bb403',
+    )
+    // Saving the response in the iceServers array
+    const iceServers = await response.json()
+    peerConnection = new RTCPeerConnection({ iceServers })
+
     registerPeerConnectionListeners(peerConnection)
   }
 
