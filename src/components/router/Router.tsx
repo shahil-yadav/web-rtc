@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom';
 
 const IndexScreen = lazy(() => import('~/components/screens/Index'));
@@ -46,6 +46,10 @@ const InnerRouter = () => {
         },
       ],
     },
+    {
+      path: 'test',
+      element: <Test />,
+    },
   ];
   const element = useRoutes(routes);
 
@@ -55,3 +59,16 @@ const InnerRouter = () => {
     </div>
   );
 };
+
+function Test() {
+  const [state, setState] = useState(0);
+
+  useEffect(() => {
+    console.log('🚀 ~ file: Router.tsx:67 ~ useEffect ~ useEffect:', useEffect);
+    setState((state) => state + 1);
+    setState((state) => state + 1);
+    setState((state) => state + 1);
+  }, []);
+
+  return <p>{state}</p>;
+}

@@ -1,31 +1,41 @@
-import SVG from '~/assets/nest-cam.svg';
+import SVG from '~/assets/camera.png'
+import { setLocalStream, useLocalStream, useRemoteStream } from '../useStreams'
+import React from 'react'
+import { IDisabled } from '..'
+import { Button } from './CreateRoom'
 
 export interface PeerStreams {
-  localVideo: HTMLVideoElement | null;
-  remoteVideo: HTMLVideoElement | null;
+  localVideoRef: React.RefObject<HTMLVideoElement>
+  remoteVideoRef: React.RefObject<HTMLVideoElement>
 }
 
-type CaptureAudioVideoProps = PeerStreams & { setLocalStream: (value: MediaStream) => void };
-
-export function CaptureAudioVideo({ localVideo, remoteVideo, setLocalStream }: CaptureAudioVideoProps) {
+export function CaptureAudioVideo({
+  localVideoRef,
+  remoteVideoRef,
+  setDisabled,
+  disabled,
+}: PeerStreams & {
+  disabled: boolean
+  setDisabled: React.Dispatch<React.SetStateAction<IDisabled>>
+}) {
   async function getMedia() {
-    if (!localVideo || !remoteVideo)
+    if (!localVideoRef.current || !remoteVideoRef.current)
       throw new Error('HTML Video not initialised properly', {
         cause: 'React Ref Hook Error',
-      });
+      })
 
-    const localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-    localVideo.srcObject = localStream;
-    setLocalStream(localStream);
+    await setLocalStream() /** Request Camera Access */
+    localVideoRef.current.srcObject = useLocalStream()
 
-    const remoteStream = new MediaStream();
-    remoteVideo.srcObject = remoteStream;
+    const remoteStream = useRemoteStream()
+    remoteVideoRef.current.srcObject = remoteStream
+
+    setDisabled((prev) => ({
+      ...prev,
+      create: false,
+      join: false,
+    }))
   }
 
-  return (
-    <button onClick={getMedia} className="btn btn-ghost px-5 py-2">
-      <img className="bg-black rounded-lg p-1" src={SVG} alt="svg" />
-      Capture Audio + Video
-    </button>
-  );
+  return <Button disabled={disabled} fn={getMedia} text={<img src={SVG} alt="svg" />} />
 }
