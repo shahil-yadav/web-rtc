@@ -19,7 +19,7 @@ function Main() {
     })
   }, [])
   return (
-    <main className="bg-black text-white h-screen">
+    <main className="bg-black text-white min-h-screen">
       <Router />
     </main>
   )
