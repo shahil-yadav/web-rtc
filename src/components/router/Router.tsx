@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom'
-import Join from '../screens/home/join'
 
 const Page404Screen = lazy(() => import('~/components/screens/404'))
 const WebRtcScreen = lazy(() => import('~/components/screens/home'))
