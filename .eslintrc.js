@@ -36,4 +36,4 @@ module.exports = {
     'jsx-quotes': ['error', 'prefer-double'],
     'react/jsx-tag-spacing': 'error',
   },
-};
+}

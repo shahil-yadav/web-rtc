@@ -18,11 +18,7 @@ function Main() {
       }
     })
   }, [])
-  return (
-    <main className="bg-black text-white min-h-screen">
-      <Router />
-    </main>
-  )
+  return <Router />
 }
 
 export default Main
