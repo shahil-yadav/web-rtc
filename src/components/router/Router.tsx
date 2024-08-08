@@ -5,8 +5,8 @@ const Page404Screen = lazy(() => import('~/components/screens/404'))
 const WebRtcScreen = lazy(() => import('~/components/screens/home'))
 
 const Loading = () => (
-  <div className="absolute grid h-screen place-items-center">
-    <p>Loading...</p>
+  <div className="absolute flex h-screen w-screen items-center justify-center">
+    <span className="loading loading-spinner w-20" />
   </div>
 )
 
