@@ -1,6 +1,5 @@
-import { Head } from '~/components/shared/Head'
 import Image404 from '~/assets/404.jpg'
-import { Link } from 'react-router-dom'
+import { Head } from '~/components/shared/Head'
 
 function Page404() {
   return (
