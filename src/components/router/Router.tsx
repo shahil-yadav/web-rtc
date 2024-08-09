@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom'
+import { BrowserRouter, Link, Outlet, RouteObject, useRoutes } from 'react-router-dom'
 
 const Page404Screen = lazy(() => import('~/components/screens/404'))
 const WebRtcScreen = lazy(() => import('~/components/screens/home'))
@@ -13,8 +13,11 @@ const Loading = () => (
 function Layout() {
   return (
     <>
-      <nav className="absolute left-0 top-0 flex items-center justify-between p-2">
-        <h1 className="text-xl font-bold">@Developed By Shahil Yadav</h1>
+      <nav className="absolute left-0 top-0 flex w-full items-center justify-between p-2">
+        <span className="text-xl font-bold">@Developed By Shahil Yadav</span>
+        <Link className="link-hover link z-10 rounded-lg bg-red-400 p-2 font-bold text-slate-100" to="/">
+          Vidloom
+        </Link>
       </nav>
       <Outlet />
     </>
@@ -43,7 +46,6 @@ const InnerRouter = () => {
           path: ':joinID',
           element: <WebRtcScreen />,
         },
-
         {
           path: '*',
           element: <Page404Screen />,
