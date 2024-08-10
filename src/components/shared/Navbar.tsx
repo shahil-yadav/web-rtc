@@ -11,7 +11,7 @@ function Navbar() {
     <nav className="flex items-center justify-between p-2 text-neutral">
       <div className="flex items-center gap-1">
         <LogoIcon size={navAssetsSize} />
-        <h1 className="text-2xl font-bold sm:text-3xl">Vidloom</h1>
+        <h1 className="text-2xl font-bold tracking-wide sm:text-3xl">Vidloom</h1>
       </div>
       <div className="flex items-center gap-2 sm:gap-5">
         <time className="hidden sm:inline">{date}</time>
