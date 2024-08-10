@@ -1,4 +1,4 @@
-import Image404 from '~/assets/404.jpg'
+import Image404 from '~/assets/images/404.jpg'
 import { Head } from '~/components/shared/Head'
 
 function Page404() {
