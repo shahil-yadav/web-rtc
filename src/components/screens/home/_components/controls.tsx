@@ -1,4 +1,4 @@
-import Hangup from '~/assets/hangup.png'
+import Hangup from '~/assets/images/hangup.png'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
 import { useToast } from '~/components/contexts/ToastContext'
 import Create from './create'
