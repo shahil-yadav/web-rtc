@@ -18,10 +18,10 @@ importers:
         specifier: ^9.23.0
         version: 9.23.0
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       react-helmet-async:
         specifier: ^1.3.0
@@ -34,11 +34,11 @@ importers:
         specifier: ^0.5.14
         version: 0.5.14(tailwindcss@3.4.9)
       '@types/react':
-        specifier: 18.2.50
-        version: 18.2.50
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
@@ -676,8 +676,8 @@ packages:
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
 
-  '@types/react-dom@18.2.18':
-    resolution: {integrity: sha512-TJxDm6OfAX2KJWJdMEVTwWke5Sc/E/RlnPGvGfS0W7+6ocy2xhDVQVh/KvC2Uf7kACs+gDytdusDSdWfWkaNzw==}
+  '@types/react-dom@18.3.0':
+    resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
 
   '@types/react-router-dom@5.3.3':
     resolution: {integrity: sha512-kpqnYK4wcdm5UaWI3fLcELopqLrHgLqNsdpHauzlQktfkHL3npOSwtj1Uz9oKBAzs7lFtVkV8j83voAz2D8fhw==}
@@ -685,11 +685,8 @@ packages:
   '@types/react-router@5.1.20':
     resolution: {integrity: sha512-jGjmu/ZqS7FjSH6owMcD5qpq19+1RS9DeVRqfl1FeBMxTDQAGwlMWOcs52NDoXaNKyG3d1cYQFMs9rCrb88o9Q==}
 
-  '@types/react@18.2.50':
-    resolution: {integrity: sha512-y0XIDJkqp9HynS1VBktZG9mUziHTK5WZTAFDP/UfzSq+poV1drUKsr4VkjMyHTbqMz26BwgLZVYdx/EgPm7EkQ==}
-
-  '@types/scheduler@0.23.0':
-    resolution: {integrity: sha512-YIoDCTH3Af6XM5VuwGG/QL/CJqga1Zm3NkU3HZ4ZHK2fRMPYP1VczsTUqtsf43PH/iJNVlPHAo2oWX7BSdB2Hw==}
+  '@types/react@18.3.3':
+    resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
 
   '@types/semver@7.5.8':
     resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
@@ -3020,28 +3017,25 @@ snapshots:
 
   '@types/prop-types@15.7.12': {}
 
-  '@types/react-dom@18.2.18':
+  '@types/react-dom@18.3.0':
     dependencies:
-      '@types/react': 18.2.50
+      '@types/react': 18.3.3
 
   '@types/react-router-dom@5.3.3':
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.2.50
+      '@types/react': 18.3.3
       '@types/react-router': 5.1.20
 
   '@types/react-router@5.1.20':
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.2.50
+      '@types/react': 18.3.3
 
-  '@types/react@18.2.50':
+  '@types/react@18.3.3':
     dependencies:
       '@types/prop-types': 15.7.12
-      '@types/scheduler': 0.23.0
       csstype: 3.1.3
-
-  '@types/scheduler@0.23.0': {}
 
   '@types/semver@7.5.8': {}
 
