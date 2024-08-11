@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "author": {
-    "name": "TeXmeijin"
+    "name": "Shahil Yadav"
   },
   "scripts": {
     "build": "tsc && vite build",

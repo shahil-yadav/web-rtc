@@ -1,35 +1,44 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
-import { useSnapshotOfMediaStreams } from '../hooks/useSnapshotOfMediaStreams'
-import { Placeholder } from './placeholder'
+import { Placeholder } from '~/components/screens/home/_components/placeholder'
+import { Connect } from './controls/connect'
 
-function Video({ state }: { state: 'local' | 'remote' }) {
+export function Video({ state }: { state: 'local' | 'remote' }) {
   const ref = useRef<HTMLVideoElement>(null)
-
   const {
-    dispatch,
     state: { localStream, remoteStream },
   } = useStreamsContext()
+  const [display, setDisplay] = useState(false)
+  const { roomID } = useParams()
 
-  const display = useMemo(() => {
-    const mediaStream = ref.current?.srcObject as MediaStream | null
-    return mediaStream?.active ?? false
-  }, [ref.current?.srcObject])
+  useEffect(() => {
+    if (state === 'remote' && remoteStream?.active === true && display === false) setDisplay(true)
+  }, [remoteStream?.active])
 
-  useSnapshotOfMediaStreams({
-    dispatch,
-    localStream,
-    ref,
-    remoteStream,
-    state,
-  })
+  useEffect(() => {
+    if (!ref.current) return
+    if (ref.current.srcObject !== null) return
+
+    if (state === 'local' && localStream !== undefined) {
+      ref.current.srcObject = localStream
+      setDisplay(true)
+    } else if (state === 'remote' && remoteStream !== undefined) {
+      ref.current.srcObject = remoteStream
+    }
+  }, [ref.current, localStream, remoteStream])
 
   return (
     <>
       {display === false && <Placeholder />}
-      <video autoPlay className={`${!display && 'hidden'} h-full w-full object-cover`} muted playsInline ref={ref} />
+      <video
+        autoPlay
+        className={`${!display && 'hidden'} h-full w-full object-cover`}
+        muted={state === 'local'}
+        playsInline
+        ref={ref}
+      />
+      {state === 'remote' && roomID && <Connect />}
     </>
   )
 }
-
-export default Video

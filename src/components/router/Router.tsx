@@ -40,7 +40,7 @@ const InnerRouter = () => {
           element: <WebRtcScreen />,
         },
         {
-          path: ':joinID',
+          path: ':roomID',
           element: <WebRtcScreen />,
         },
         {

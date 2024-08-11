@@ -1,6 +1,6 @@
 import { Head } from '~/components/shared/Head'
-import { Controls } from './_components/controls'
-import Video from './_components/video'
+import { Controls } from '~/components/screens/home/_components/controls'
+import { Video } from './_components/video'
 
 function Home() {
   return (

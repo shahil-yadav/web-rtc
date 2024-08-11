@@ -11,7 +11,7 @@ export function Button({
 }) {
   return (
     <button
-      className="btn btn-circle bg-base-content disabled:bg-red-500"
+      className="btn btn-circle bg-base-content p-2 disabled:bg-red-500"
       disabled={disabled}
       onClick={handleClickEvent}
       type="button"
