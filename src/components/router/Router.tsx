@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom'
 import Profile from '../screens/profile'
-import Navbar from '../shared/Navbar'
+import Navbar from '../shared/navbar'
 
 const Page404Screen = lazy(() => import('~/components/screens/404'))
 const WebRtcScreen = lazy(() => import('~/components/screens/home'))
@@ -14,10 +14,10 @@ const Loading = () => (
 
 function Layout() {
   return (
-    <>
+    <main className="flex h-svh flex-col">
       <Navbar />
       <Outlet />
-    </>
+    </main>
   )
 }
 

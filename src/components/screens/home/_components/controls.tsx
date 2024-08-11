@@ -1,8 +1,8 @@
 import Hangup from '~/assets/images/hangup.png'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
 import { useToast } from '~/components/contexts/ToastContext'
-import Create from './create'
-import { Camera } from './camera'
+import { Camera } from '~/components/screens/home/_components/camera'
+import Create from '~/components/screens/home/_components/create'
 
 export function Controls() {
   const {
@@ -28,13 +28,13 @@ export function Controls() {
         stream.srcObject = null
       }
     })
-
     /** Stopping Streams code 👆 */
+
     document.location.reload()
   }
 
   return (
-    <div className="absolute bottom-[5%] flex gap-2">
+    <div className="flex justify-center gap-5 bg-base-300 py-8">
       <Camera />
       <Create />
       <button onClick={handleHangup} className="btn btn-circle p-2" type="button">

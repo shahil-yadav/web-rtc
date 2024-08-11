@@ -1,11 +1,11 @@
 import { useProfileImage } from '~/assets/pfps/useProfileImage'
 import { LogoIcon } from '~/assets/svg/LogoIcon'
-import { getCalenderDate } from '~/components/screens/home/utils/getCalenderDate'
+import { Time } from './time'
+import { useMemo } from 'react'
 
 function Navbar() {
   const navAssetsSize = 60
   const profileUrl = useProfileImage()
-  const date = getCalenderDate()
 
   return (
     <nav className="flex items-center justify-between p-2 text-neutral">
@@ -14,7 +14,7 @@ function Navbar() {
         <h1 className="text-2xl font-bold tracking-wide sm:text-3xl">Vidloom</h1>
       </div>
       <div className="flex items-center gap-2 sm:gap-5">
-        <time className="hidden sm:inline">{date}</time>
+        <Time />
         {profileUrl && (
           <>
             <span className="hidden sm:inline">
@@ -25,7 +25,7 @@ function Navbar() {
                 style={{ width: navAssetsSize - 20 }}
                 className="rounded-full ring ring-primary ring-offset-1 ring-offset-base-100"
               >
-                <img src={profileUrl.src} alt={profileUrl.src} />
+                <img src={profileUrl.src} alt={profileUrl.alt} />
               </div>
             </div>
           </>

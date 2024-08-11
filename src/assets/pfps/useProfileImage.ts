@@ -1,8 +1,14 @@
 import images from './data'
 
+let avatar: { src: string; alt: string } | undefined
+
 export function useProfileImage() {
-  const randInt = Math.random()
-  const chooseImage = Math.round(randInt * images.length)
-  const imgIndex = chooseImage - 1
-  return images.at(imgIndex)
+  if (avatar === undefined) {
+    const randInt = Math.random()
+    const chooseImage = Math.round(randInt * images.length)
+    const imgIndex = chooseImage - 1
+    avatar = images.at(imgIndex)
+  }
+
+  return avatar
 }

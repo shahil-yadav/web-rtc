@@ -1,5 +1,6 @@
 import { VideocamIcon } from '~/assets/svg/VideocamIcon'
 import { Action, useStreamsContext } from '~/components/contexts/StreamsContext'
+import { Button } from '~/components/screens/home/ui/button'
 
 export async function handleMedia(
   dispatch: (arg: Action) => void,
@@ -7,10 +8,12 @@ export async function handleMedia(
   remoteVideo?: HTMLVideoElement,
 ) {
   if (!localVideo || !remoteVideo) {
-    throw new Error('HTML Video not initialised properly', {
+    const err = 'HTML Video not initialised properly'
+    throw new Error(err, {
       cause: 'React Ref Hook Error',
     })
   }
+
   const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
   dispatch({ type: 'SET-LOCAL-STREAM', payload: stream })
   dispatch({ type: 'SET-EMPTY-REMOTE-STREAM', payload: null })
@@ -23,13 +26,8 @@ export function Camera() {
   } = useStreamsContext()
 
   return (
-    <button
-      disabled={localStream?.active}
-      onClick={() => handleMedia(dispatch, localVideo, remoteVideo)}
-      className="btn btn-circle disabled:bg-red-300"
-      type="button"
-    >
+    <Button disabled={!!localStream?.active} handleClickEvent={() => handleMedia(dispatch, localVideo, remoteVideo)}>
       <VideocamIcon />
-    </button>
+    </Button>
   )
 }

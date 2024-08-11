@@ -89,8 +89,8 @@ function StreamsProvider({ children }: { children: ReactNode }) {
     room: '',
   }
   const [state, dispatch] = useReducer(reducer, initialValue)
-
   const contextValue = { state, dispatch }
+
   return <Context.Provider value={contextValue}>{children}</Context.Provider>
 }
 
