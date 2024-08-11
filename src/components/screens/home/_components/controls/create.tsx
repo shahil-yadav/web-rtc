@@ -1,35 +1,42 @@
 import { Dialog } from '@headlessui/react'
-import { addDoc, collection, doc, onSnapshot, query, updateDoc } from 'firebase/firestore'
-import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import AddIcon from '~/assets/svg/AddIcon'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
+import { Camera } from '~/components/screens/home/_components/controls/camera'
+import { Video } from '~/components/screens/home/_components/video'
+import { usePeerConnection } from '~/components/screens/home/hooks/usePeerConnection'
+import { Button } from '~/components/screens/home/ui/button'
+import { Tooltip } from '~/components/screens/home/ui/tooltip'
 import { useFirestore } from '~/lib/firebase'
-import { usePeerConnection } from '../hooks/usePeerConnection'
-import { Camera } from './camera'
-import { LocalStream } from './local-stream'
-import { Tooltip } from '../ui/tooltip'
 
-function Create() {
+export function Create() {
   const [isOpen, setIsOpen] = useState(false)
-  const { joinID } = useParams()
-  const ref = useRef<HTMLVideoElement>(null)
   const db = useFirestore()
   const peerConnection = usePeerConnection()
 
   const {
-    state: { room, localStream, remoteStream, localVideo },
+    state: { room, status, localStream, remoteStream },
     dispatch,
   } = useStreamsContext()
 
   async function handleCreateRoom() {
     if (!localStream || !remoteStream) throw new Error('Local Stream or Remote Stream is not setup')
 
-    /** 0. Create a document(room) in the collection of rooms */
-    const roomIDDocRef = await addDoc(collection(db, 'rooms'), {})
-    const roomID = roomIDDocRef.id
-    dispatch({ type: 'SET-ROOM', payload: roomID })
-    /** Create a document(room) in the collection of rooms */
+    const { addDoc, collection, doc, onSnapshot, query, updateDoc } = await import('firebase/firestore')
+
+    let roomID: string | undefined
+    /** 0. Create a document(room) in the collection of rooms [START] 👇 */
+    try {
+      dispatch({ type: 'SET-STATUS', payload: 'loading' })
+      const roomIDDocRef = await addDoc(collection(db, 'rooms'), {})
+      roomID = roomIDDocRef.id
+      dispatch({ type: 'SET-ROOM', payload: roomIDDocRef.id })
+      dispatch({ type: 'SET-STATUS', payload: 'success' })
+    } catch (error) {
+      dispatch({ type: 'SET-STATUS', payload: 'error' })
+    }
+    /** Create a document(room) in the collection of rooms [END] 👆 */
 
     /** 1. Add local stream to the peer connection[START] 👇 */
     localStream.getTracks().forEach((track) => {
@@ -45,21 +52,25 @@ function Create() {
         return
       }
       console.log('Got candidate: ', event.candidate)
+      if (!roomID) return
       addDoc(collection(db, 'rooms', roomID, 'callerCandidates'), event.candidate.toJSON())
     }
     peerConnection.addEventListener('icecandidate', sendLocalIceCandidatesToDb)
     /**  Listen for ice-candidates[END] 👆 */
 
     /** 3. Create an offer and send to the DB[START] 👇 */
-    const offer = await peerConnection.createOffer()
-    peerConnection.setLocalDescription(offer)
-    const roomWithOffer = {
-      offer: {
-        type: offer.type,
-        sdp: offer.sdp,
-      },
+    if (!peerConnection.currentLocalDescription) {
+      const offer = await peerConnection.createOffer()
+      peerConnection.setLocalDescription(offer)
+      const roomWithOffer = {
+        offer: {
+          type: offer.type,
+          sdp: offer.sdp,
+        },
+      }
+      if (!roomID) return
+      await updateDoc(doc(db, 'rooms', roomID), roomWithOffer)
     }
-    await updateDoc(doc(db, 'rooms', roomID), roomWithOffer)
     /** Create an offer and send to the DB[END] 👆 */
 
     /** 4. Add remote stream to the peer connection[START] 👇 */
@@ -73,6 +84,7 @@ function Create() {
     /** Add remote stream to the peer connection[END] 👆 */
 
     /** 5. Listen for remote ice candidates[START] 👇 */
+    if (!roomID) return
     onSnapshot(query(collection(db, 'rooms', roomID, 'calleeCandidates')), (snapshot) => {
       snapshot.docChanges().forEach(async (change) => {
         if (change.type === 'added') {
@@ -96,34 +108,34 @@ function Create() {
     /** Listen for remote offers[END] 👆 */
   }
 
-  useEffect(() => {
-    if (!ref.current || !localVideo) return
-    ref.current.srcObject = localVideo.srcObject
-  }, [localVideo?.srcObject, ref.current])
-
   return (
     <>
-      <button
-        type="button"
-        disabled={joinID !== undefined}
-        onClick={() => setIsOpen(true)}
-        className="btn btn-circle p-2 disabled:bg-red-300"
-      >
+      <Button disabled={localStream === undefined} handleClickEvent={() => setIsOpen(true)}>
         <AddIcon />
-      </button>
+      </Button>
+
       <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
         <div className="fixed inset-0 flex w-screen items-center justify-center">
-          <Dialog.Panel className="max-w-lg space-y-4 border bg-white p-4">
+          <Dialog.Panel className="space-y-4 border bg-white p-4">
             <Dialog.Title className="text-2xl font-bold">
-              Room : {room.length === 0 ? '~ NO ROOM CREATED ~' : room}
+              {room.length === 0 && status === 'loading' ? (
+                <div className="flex items-center gap-2">
+                  Please wait:
+                  <span className="loading loading-spinner loading-md" />
+                </div>
+              ) : (
+                room.length === 0 && 'No room created'
+              )}
+              {status === 'error' && 'Please retry !'}
+              {status === 'success' && `Room: ${room}`}
             </Dialog.Title>
-            <Dialog.Description>Joining as caller</Dialog.Description>
             <div className="flex w-full flex-col items-center justify-center gap-2">
               <div className="h-52 w-40">
-                <LocalStream />
+                <Video state="local" />
               </div>
               <Camera />
             </div>
+            <Dialog.Description>Joining as caller</Dialog.Description>
             <p>
               This meeting is powered by{' '}
               <Link className="btn-link text-amber-600" to="https://webrtc.org/">
@@ -153,5 +165,3 @@ function Create() {
     </>
   )
 }
-
-export default Create

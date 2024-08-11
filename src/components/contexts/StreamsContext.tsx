@@ -1,11 +1,12 @@
 import { createContext, ReactNode, useContext, useReducer } from 'react'
 
+type Status = 'loading' | 'error' | 'success'
+
 interface State {
   localStream?: MediaStream
-  localVideo?: HTMLVideoElement
   remoteStream?: MediaStream
-  remoteVideo?: HTMLVideoElement
-  room: String
+  room: string
+  status?: Status
 }
 
 export type Action =
@@ -14,16 +15,12 @@ export type Action =
       payload: string
     }
   | {
-      type: 'SET-LOCAL-VIDEO'
-      payload: HTMLVideoElement
+      type: 'SET-STATUS'
+      payload: Status
     }
   | {
       type: 'SET-LOCAL-STREAM'
       payload: MediaStream
-    }
-  | {
-      type: 'SET-REMOTE-VIDEO'
-      payload: HTMLVideoElement
     }
   | {
       type: 'SET-EMPTY-REMOTE-STREAM'
@@ -38,31 +35,20 @@ function reducer(state: State, action: Action) {
         room: action.payload,
       }
 
-    case 'SET-LOCAL-VIDEO':
+    case 'SET-STATUS':
       return {
         ...state,
-        localVideo: action.payload,
+        status: action.payload,
       }
 
     case 'SET-LOCAL-STREAM':
-      if (!state.localVideo) throw new Error('Cannot dispatch until local <video/> is defined')
-      state.localVideo.srcObject = action.payload
       return {
         ...state,
         localStream: action.payload,
       }
 
-    case 'SET-REMOTE-VIDEO':
-      return {
-        ...state,
-        remoteVideo: action.payload,
-      }
-
     case 'SET-EMPTY-REMOTE-STREAM': {
-      if (!state.remoteVideo) throw new Error('Cannot dispatch until remote <video/> is defined')
       const remoteStream = new MediaStream()
-      state.remoteVideo.srcObject = remoteStream
-
       return {
         ...state,
         remoteStream,
@@ -89,7 +75,6 @@ function StreamsProvider({ children }: { children: ReactNode }) {
     room: '',
   }
   const [state, dispatch] = useReducer(reducer, initialValue)
-
   const contextValue = { state, dispatch }
   return <Context.Provider value={contextValue}>{children}</Context.Provider>
 }

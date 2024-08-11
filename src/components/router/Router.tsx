@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Link, Outlet, RouteObject, useRoutes } from 'react-router-dom'
+import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom'
 import Profile from '../screens/profile'
-import { useProfileImage } from '~/assets/pfps/useProfileImage'
+import Navbar from '../shared/navbar'
 
 const Page404Screen = lazy(() => import('~/components/screens/404'))
 const WebRtcScreen = lazy(() => import('~/components/screens/home'))
@@ -13,19 +13,11 @@ const Loading = () => (
 )
 
 function Layout() {
-  const img = useProfileImage()
   return (
-    <>
-      <nav className="absolute left-0 top-0 flex w-full items-center justify-between p-2">
-        <span className="text-xl font-bold">@Developed By Shahil Yadav</span>
-        <Link className="link-hover link z-10 rounded-lg bg-red-400 p-2 font-bold text-slate-100" to="/">
-          Vidloom
-        </Link>
-
-        {img && <img src={img.src} alt={img.alt} className="aspect-square w-24" />}
-      </nav>
+    <main className="flex h-svh flex-col">
+      <Navbar />
       <Outlet />
-    </>
+    </main>
   )
 }
 
@@ -48,7 +40,7 @@ const InnerRouter = () => {
           element: <WebRtcScreen />,
         },
         {
-          path: ':joinID',
+          path: ':roomID',
           element: <WebRtcScreen />,
         },
         {
@@ -56,7 +48,7 @@ const InnerRouter = () => {
           element: <Profile />,
         },
         {
-          path: '*',
+          path: '404',
           element: <Page404Screen />,
         },
       ],
