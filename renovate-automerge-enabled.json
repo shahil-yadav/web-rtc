@@ -1,14 +1,11 @@
 {
   "extends": ["config:base"],
-  // "automergeSchedule": ["before 2pm"],
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
-      // "automerge": true
     },
     {
       "matchDepTypes": ["devDependencies"]
-      // "automerge": true
     }
   ],
   "rangeStrategy": "bump"
