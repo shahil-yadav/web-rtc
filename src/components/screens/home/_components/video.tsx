@@ -33,7 +33,7 @@ export function Video({ state }: { state: 'local' | 'remote' }) {
       {display === false && <Placeholder />}
       <video
         autoPlay
-        className={`${!display && 'hidden'} h-full w-full object-cover`}
+        className={`${!display && 'hidden'} h-full w-full max-w-[800px] object-cover`}
         muted={state === 'local'}
         playsInline
         ref={ref}
