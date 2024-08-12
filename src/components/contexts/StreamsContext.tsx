@@ -7,6 +7,7 @@ interface State {
   remoteStream?: MediaStream
   room: string
   status?: Status
+  isConnected: boolean
 }
 
 export type Action =
@@ -14,6 +15,7 @@ export type Action =
       type: 'SET-ROOM'
       payload: string
     }
+  | { type: 'SET-CONNECTION'; payload: boolean }
   | {
       type: 'SET-STATUS'
       payload: Status
@@ -65,15 +67,17 @@ interface ContextProps {
   dispatch: (arg: Action) => void
 }
 
+const initialValue = {
+  room: '',
+  isConnected: false,
+}
+
 const Context = createContext<ContextProps>({
-  state: { room: '' },
+  state: initialValue,
   dispatch: (arg) => {},
 })
 
 function StreamsProvider({ children }: { children: ReactNode }) {
-  const initialValue = {
-    room: '',
-  }
   const [state, dispatch] = useReducer(reducer, initialValue)
   const contextValue = { state, dispatch }
   return <Context.Provider value={contextValue}>{children}</Context.Provider>
