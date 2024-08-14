@@ -1,12 +1,10 @@
-import { useProfileImage } from '~/assets/pfps/useProfileImage'
 import { LogoIcon } from '~/assets/svg/LogoIcon'
+import { useAuthState } from '~/components/contexts/UserContext'
 import { Time } from './time'
-import { useMemo } from 'react'
+
+const navAssetsSize = 60
 
 function Navbar() {
-  const navAssetsSize = 60
-  const profileUrl = useProfileImage()
-
   return (
     <nav className="flex items-center justify-between p-2 text-neutral">
       <div className="flex items-center gap-1">
@@ -15,24 +13,35 @@ function Navbar() {
       </div>
       <div className="flex items-center gap-2 sm:gap-5">
         <Time />
-        {profileUrl && (
-          <>
-            <span className="hidden sm:inline">
-              Welcome, <span className="font-semibold">{profileUrl.alt}</span>
-            </span>
-            <div className="avatar">
-              <div
-                style={{ width: navAssetsSize - 20 }}
-                className="rounded-full ring ring-primary ring-offset-1 ring-offset-base-100"
-              >
-                <img src={profileUrl.src} alt={profileUrl.alt} />
-              </div>
-            </div>
-          </>
-        )}
+        <Profile />
       </div>
     </nav>
   )
+}
+
+function Profile() {
+  const { state } = useAuthState()
+  if (state.state === 'SIGNED_IN') {
+    const avatar = state.avatar
+    return (
+      avatar && (
+        <>
+          <span className="hidden sm:inline">
+            Welcome, <span className="font-semibold">{avatar.alt}</span>
+          </span>
+          <div className="avatar">
+            <div
+              style={{ width: navAssetsSize - 20 }}
+              className="rounded-full ring ring-primary ring-offset-1 ring-offset-base-100"
+            >
+              <img src={avatar.src} alt={avatar.alt} />
+            </div>
+          </div>
+        </>
+      )
+    )
+  }
+  return null
 }
 
 export default Navbar

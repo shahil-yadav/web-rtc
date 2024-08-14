@@ -1,19 +1,25 @@
-import { createContext, ReactNode, useContext, useReducer } from 'react';
-import { User } from 'firebase/auth';
+import { User } from 'firebase/auth'
+import { createContext, ReactNode, useContext, useReducer } from 'react'
 
-type AuthActions = { type: 'SIGN_IN'; payload: { user: User } } | { type: 'SIGN_OUT' };
+export type Image = { src: string; alt: string }
+
+type AuthActions =
+  | { type: 'SIGN_IN'; payload: { user: User; avatar: Image } }
+  | { type: 'SIGN_OUT' }
+  | { type: 'SET-AVATAR-IMAGE'; payload: Image }
 
 type AuthState =
   | {
-      state: 'SIGNED_IN';
-      currentUser: User;
+      state: 'SIGNED_IN'
+      currentUser: User
+      avatar: { src: string; alt: string }
     }
   | {
-      state: 'SIGNED_OUT';
+      state: 'SIGNED_OUT'
     }
   | {
-      state: 'UNKNOWN';
-    };
+      state: 'UNKNOWN'
+    }
 
 const AuthReducer = (state: AuthState, action: AuthActions): AuthState => {
   switch (action.type) {
@@ -21,54 +27,58 @@ const AuthReducer = (state: AuthState, action: AuthActions): AuthState => {
       return {
         state: 'SIGNED_IN',
         currentUser: action.payload.user,
-      };
-      break;
+        avatar: action.payload.avatar,
+      }
+
     case 'SIGN_OUT':
       return {
         state: 'SIGNED_OUT',
-      };
+      }
+
+    default:
+      return { ...state }
   }
-};
+}
 
 type AuthContextProps = {
-  state: AuthState;
-  dispatch: (value: AuthActions) => void;
-};
+  state: AuthState
+  dispatch: (value: AuthActions) => void
+}
 
 export const AuthContext = createContext<AuthContextProps>({
   state: { state: 'UNKNOWN' },
   dispatch: (val) => {},
-});
+})
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(AuthReducer, { state: 'UNKNOWN' });
+  const [state, dispatch] = useReducer(AuthReducer, { state: 'UNKNOWN' })
 
-  return <AuthContext.Provider value={{ state, dispatch }}>{children}</AuthContext.Provider>;
-};
+  return <AuthContext.Provider value={{ state, dispatch }}>{children}</AuthContext.Provider>
+}
 
 const useAuthState = () => {
-  const { state } = useContext(AuthContext);
+  const { state } = useContext(AuthContext)
   return {
     state,
-  };
-};
+  }
+}
 
 const useSignIn = () => {
-  const { dispatch } = useContext(AuthContext);
+  const { dispatch } = useContext(AuthContext)
   return {
-    signIn: (user: User) => {
-      dispatch({ type: 'SIGN_IN', payload: { user } });
+    signIn: (user: User, avatar: Image) => {
+      dispatch({ type: 'SIGN_IN', payload: { user, avatar } })
     },
-  };
-};
+  }
+}
 
 const useSignOut = () => {
-  const { dispatch } = useContext(AuthContext);
+  const { dispatch } = useContext(AuthContext)
   return {
     signOut: () => {
-      dispatch({ type: 'SIGN_OUT' });
+      dispatch({ type: 'SIGN_OUT' })
     },
-  };
-};
+  }
+}
 
-export { useAuthState, useSignIn, useSignOut, AuthProvider };
+export { AuthProvider, useAuthState, useSignIn, useSignOut }

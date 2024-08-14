@@ -1,10 +1,11 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom'
-import Profile from '../screens/profile'
+
 import Navbar from '../shared/navbar'
 
 const Page404Screen = lazy(() => import('~/components/screens/404'))
 const WebRtcScreen = lazy(() => import('~/components/screens/home'))
+const Profile = lazy(() => import('~/components/screens/profile'))
 
 const Loading = () => (
   <div className="absolute flex h-screen w-screen items-center justify-center">
