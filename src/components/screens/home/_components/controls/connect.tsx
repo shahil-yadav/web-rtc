@@ -3,14 +3,17 @@ import connect from '~/assets/images/connect.png'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
 import { usePeerConnection } from '~/components/screens/home/hooks/usePeerConnection'
 import { useFirestore } from '~/lib/firebase'
+import { useLocalStream, useRemoteStream } from '../../hooks/useStreams'
 
 export function Connect() {
+  const navigate = useNavigate()
   const {
-    state: { localStream, remoteStream },
+    state: { camera },
   } = useStreamsContext()
 
-  const navigate = useNavigate()
   const { roomID } = useParams()
+  const localStream = useLocalStream()
+  const remoteStream = useRemoteStream()
 
   async function handleJoinRoomById() {
     const { getDoc, doc, addDoc, onSnapshot, query, collection, updateDoc } = await import('firebase/firestore')
@@ -85,11 +88,7 @@ export function Connect() {
   }
 
   return (
-    <button
-      disabled={localStream === undefined}
-      onClick={handleJoinRoomById}
-      className="btn btn-circle absolute p-2 disabled:bg-red-500"
-    >
+    <button disabled={camera === false} onClick={handleJoinRoomById} className="btn btn-circle p-2 disabled:bg-red-500">
       <img src={connect} />
     </button>
   )

@@ -1,21 +1,20 @@
 import { VideocamIcon } from '~/assets/svg/VideocamIcon'
-import { Action, useStreamsContext } from '~/components/contexts/StreamsContext'
+import { useStreamsContext } from '~/components/contexts/StreamsContext'
+import { openCameraWithAudioAndVideo } from '~/components/screens/home/hooks/useStreams'
 import { Button } from '~/components/screens/home/ui/button'
-
-export async function handleMedia(dispatch: (arg: Action) => void) {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-  dispatch({ type: 'SET-LOCAL-STREAM', payload: stream })
-  dispatch({ type: 'SET-EMPTY-REMOTE-STREAM', payload: null })
-}
 
 export function Camera() {
   const {
-    state: { localStream },
     dispatch,
+    state: { camera },
   } = useStreamsContext()
-
   return (
-    <Button disabled={!!localStream?.active} handleClickEvent={() => handleMedia(dispatch)}>
+    <Button
+      disabled={camera}
+      handleClickEvent={async () => {
+        dispatch({ type: 'SET-CAMERA', payload: await openCameraWithAudioAndVideo() })
+      }}
+    >
       <VideocamIcon />
     </Button>
   )

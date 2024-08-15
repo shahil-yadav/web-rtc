@@ -1,22 +1,33 @@
-let localStream: MediaStream
+let localStream: MediaStream | undefined
 let remoteStream: MediaStream
 
-export async function setLocalStream() {
-  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+export async function openCameraWithAudioAndVideo() {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    return true
+  } catch (error) {
+    return false
+  }
 }
 
 export function useLocalStream() {
-  if (!localStream) {
-    localStream = new MediaStream()
-  }
+  /*
+    if (!localStream) {
+      // localStream = new MediaStream()
+    }
+  */
 
   return localStream
 }
 
 export function useRemoteStream() {
   if (!remoteStream) {
-    remoteStream = new MediaStream()
+    setupRemoteStream()
   }
 
   return remoteStream
+}
+
+export function setupRemoteStream() {
+  remoteStream = new MediaStream()
 }

@@ -1,24 +1,29 @@
 import { Dialog } from '@headlessui/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AddIcon from '~/assets/svg/AddIcon'
-import { useStreamsContext } from '~/components/contexts/StreamsContext'
+import { Status, useStreamsContext } from '~/components/contexts/StreamsContext'
 import { Camera } from '~/components/screens/home/_components/controls/camera'
 import { Video } from '~/components/screens/home/_components/video'
 import { usePeerConnection } from '~/components/screens/home/hooks/usePeerConnection'
+import { useLocalStream, useRemoteStream } from '~/components/screens/home/hooks/useStreams'
 import { Button } from '~/components/screens/home/ui/button'
 import { Tooltip } from '~/components/screens/home/ui/tooltip'
 import { useFirestore } from '~/lib/firebase'
 
 export function Create() {
-  const [isOpen, setIsOpen] = useState(false)
-  const db = useFirestore()
-  const peerConnection = usePeerConnection()
-
   const {
-    state: { room, status, localStream, remoteStream },
+    state: { room, camera, connected },
     dispatch,
   } = useStreamsContext()
+
+  const [status, setStatus] = useState<Status>('none')
+  const [isOpen, setIsOpen] = useState(false)
+
+  const localStream = useLocalStream()
+  const remoteStream = useRemoteStream()
+  const peerConnection = usePeerConnection()
+  const db = useFirestore()
 
   async function handleCreateRoom() {
     if (!localStream || !remoteStream) throw new Error('Local Stream or Remote Stream is not setup')
@@ -28,13 +33,13 @@ export function Create() {
     let roomID: string | undefined
     /** 0. Create a document(room) in the collection of rooms [START] 👇 */
     try {
-      dispatch({ type: 'SET-STATUS', payload: 'loading' })
+      setStatus(() => 'loading')
       const roomIDDocRef = await addDoc(collection(db, 'rooms'), {})
       roomID = roomIDDocRef.id
       dispatch({ type: 'SET-ROOM', payload: roomIDDocRef.id })
-      dispatch({ type: 'SET-STATUS', payload: 'success' })
+      setStatus(() => 'success')
     } catch (error) {
-      dispatch({ type: 'SET-STATUS', payload: 'error' })
+      setStatus(() => 'error')
     }
     /** Create a document(room) in the collection of rooms [END] 👆 */
 
@@ -96,7 +101,7 @@ export function Create() {
     })
     /** Listen for remote ice candidates[END] 👆 */
 
-    /** 6. Listen for remote offers[START] 👇 */
+    /** 6. Listen for remote answers[START] 👇 */
     onSnapshot(doc(db, 'rooms', roomID), async (snapshot) => {
       const data = snapshot.data()
       if (!peerConnection.currentRemoteDescription && data?.answer) {
@@ -105,13 +110,22 @@ export function Create() {
         await peerConnection.setRemoteDescription(rtcSessionDescription)
       }
     })
-    /** Listen for remote offers[END] 👆 */
+    /** Listen for remote answers[END] 👆 */
   }
+
+  useEffect(() => {
+    if (connected === 'error') {
+      dispatch({ type: 'SET-ROOM', payload: '' })
+      setStatus(() => 'none')
+    }
+  }, [connected])
 
   return (
     <>
-      <Button disabled={localStream === undefined} handleClickEvent={() => setIsOpen(true)}>
-        <AddIcon />
+      <Button disabled={camera === false} handleClickEvent={() => setIsOpen(true)}>
+        {status === 'none' && <AddIcon />}
+        {status === 'loading' && <span className="loading loading-spinner loading-sm mx-2" />}
+        {status === 'success' && <span>✅</span>}
       </Button>
 
       <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
