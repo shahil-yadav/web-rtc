@@ -1,61 +1,40 @@
 import { createContext, ReactNode, useContext, useReducer } from 'react'
 
-type Status = 'loading' | 'error' | 'success'
+export type Status = 'loading' | 'error' | 'success' | 'none'
 
 interface State {
-  localStream?: MediaStream
-  remoteStream?: MediaStream
+  camera: boolean
+  connected: Status
   room: string
-  status?: Status
-  isConnected: boolean
 }
 
 export type Action =
+  | { type: 'SET-CAMERA'; payload: boolean }
   | {
       type: 'SET-ROOM'
       payload: string
     }
-  | { type: 'SET-CONNECTION'; payload: boolean }
-  | {
-      type: 'SET-STATUS'
-      payload: Status
-    }
-  | {
-      type: 'SET-LOCAL-STREAM'
-      payload: MediaStream
-    }
-  | {
-      type: 'SET-EMPTY-REMOTE-STREAM'
-      payload: null
-    }
+  | { type: 'SET-CONNECTION'; payload: Status }
 
 function reducer(state: State, action: Action) {
   switch (action.type) {
+    case 'SET-CAMERA':
+      return {
+        ...state,
+        camera: action.payload,
+      }
+
+    case 'SET-CONNECTION':
+      return {
+        ...state,
+        connected: action.payload,
+      }
+
     case 'SET-ROOM':
       return {
         ...state,
         room: action.payload,
       }
-
-    case 'SET-STATUS':
-      return {
-        ...state,
-        status: action.payload,
-      }
-
-    case 'SET-LOCAL-STREAM':
-      return {
-        ...state,
-        localStream: action.payload,
-      }
-
-    case 'SET-EMPTY-REMOTE-STREAM': {
-      const remoteStream = new MediaStream()
-      return {
-        ...state,
-        remoteStream,
-      }
-    }
 
     default:
       return state
@@ -67,9 +46,10 @@ interface ContextProps {
   dispatch: (arg: Action) => void
 }
 
-const initialValue = {
+const initialValue: State = {
   room: '',
-  isConnected: false,
+  connected: 'none',
+  camera: false,
 }
 
 const Context = createContext<ContextProps>({
