@@ -22,7 +22,14 @@ export function Remote() {
   return (
     <>
       {connected === 'none' && <Placeholder />}
-      {connected === 'error' && <span className="text-xl">Remote connection lost</span>}
+      {connected === 'error' && (
+        <div className="flex flex-col items-center">
+          <span className="text-2xl text-error">Remote connection lost</span>
+          <span className="text-xl text-error-content">
+            Please create a new room for <span className="font-semibold">reconnection</span>
+          </span>
+        </div>
+      )}
       <video
         autoPlay
         className={clsx('h-full w-full max-w-[800px] object-cover', { hidden: connected !== 'success' })}
