@@ -4,13 +4,16 @@ import { useFirestore } from '~/lib/firebase'
 import { Button } from '../../ui/button'
 import { CollectionReference, DocumentData, Firestore, Query } from 'firebase/firestore'
 import { useParams } from 'react-router-dom'
+import { useLocalStream, useRemoteStream } from '../../hooks/useStreams'
 
 export function Hangup() {
   const {
-    state: { localStream, remoteStream, room },
+    state: { room },
   } = useStreamsContext()
   const { roomID } = useParams()
   const db = useFirestore()
+  const localStream = useLocalStream()
+  const remoteStream = useRemoteStream()
 
   async function handleHangup() {
     const { deleteDoc, doc, collection, query, limit, getDocs, writeBatch } = await import('firebase/firestore')
