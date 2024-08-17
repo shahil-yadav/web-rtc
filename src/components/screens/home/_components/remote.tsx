@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
-import { Placeholder } from './placeholder'
 import { useRemoteStream } from '../hooks/useStreams'
 import clsx from 'clsx'
 
@@ -21,7 +20,7 @@ export function Remote() {
 
   return (
     <>
-      {connected === 'none' && <Placeholder />}
+      {connected === 'none' && <span>No one is in the call</span>}
       {connected === 'error' && (
         <div className="flex flex-col items-center">
           <span className="text-2xl text-error">Remote connection lost</span>
