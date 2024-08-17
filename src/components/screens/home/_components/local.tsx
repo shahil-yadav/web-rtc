@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
 import { useLocalStream } from '../hooks/useStreams'
-import { Placeholder } from './placeholder'
+import { LocalAvatar } from './placeholder'
 
 export function Local() {
   const {
@@ -20,7 +20,7 @@ export function Local() {
 
   return (
     <>
-      {camera === false && <Placeholder />}
+      {camera === false && <LocalAvatar />}
       <video
         autoPlay
         className={`${camera === false && 'hidden'} h-full w-full max-w-[800px] object-cover`}
