@@ -4,26 +4,23 @@ import { useSignIn } from '~/components/contexts/UserContext'
 import { Router } from '~/components/router/Router'
 import { setupFirebase, useAuth } from '~/lib/firebase'
 
-// eslint-disable-next-line no-undef
-const storageWorker = new ComlinkWorker<typeof import('~/components/root/utils/storage')>(
-  new URL('~/components/root/utils/storage', import.meta.url),
-  {
-    name: 'firestore-storage-worker',
-    type: 'module',
-  },
-)
+const storageWorker = new ComlinkWorker<typeof import('~/lib/workers')>(new URL('~/lib/workers', import.meta.url), {
+  type: 'module',
+})
 
 function Main() {
   const { signIn } = useSignIn()
   // const { signOut } = useSignOut()
   useEffect(() => {
     setupFirebase()
+    console.log('Firebase was setup')
+
     const auth = useAuth()
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const avatar = await storageWorker.fetchRandomAvatar()
         signIn(user, avatar)
-        console.log('Anonymous user signed-in.', user)
+        console.log('Anonymous user signed-in.')
       } else {
         console.log('There was no anonymous session. Creating a new anonymous user.')
         // Sign the user in anonymously since accessing Storage requires the user to be authorized.

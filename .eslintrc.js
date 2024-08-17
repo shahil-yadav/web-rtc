@@ -4,6 +4,9 @@ module.exports = {
     es2021: true,
   },
   extends: ['plugin:react/recommended', 'standard', 'prettier'],
+  globals: {
+    ComlinkWorker: 'readonly',
+  },
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
@@ -11,11 +14,6 @@ module.exports = {
     },
     ecmaVersion: 12,
     sourceType: 'module',
-  },
-  settings: {
-    react: {
-      version: 'detect',
-    },
   },
   plugins: ['react', '@typescript-eslint'],
   rules: {
@@ -35,5 +33,10 @@ module.exports = {
     'prefer-template': 'error',
     'jsx-quotes': ['error', 'prefer-double'],
     'react/jsx-tag-spacing': 'error',
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
 }

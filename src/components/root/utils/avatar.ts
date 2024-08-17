@@ -1,8 +1,6 @@
-import { QuerySnapshot, DocumentData } from 'firebase/firestore'
-import { setupFirebase, useFirestore } from '~/lib/firebase'
+import { DocumentData, QuerySnapshot } from 'firebase/firestore'
 import { Image } from '~/components/contexts/UserContext'
-
-setupFirebase()
+import { useFirestore } from '~/lib/firebase'
 
 export async function fetchRandomAvatar(): Promise<Image> {
   const { collection, limit, orderBy, query, where, getDocs } = await import('firebase/firestore')

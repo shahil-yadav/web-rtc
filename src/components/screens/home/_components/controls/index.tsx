@@ -14,3 +14,5 @@ export function Controls() {
     </div>
   )
 }
+
+export default Controls

@@ -4,7 +4,8 @@ import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom'
 const Page404Screen = lazy(() => import('~/components/screens/404'))
 const WebRtcScreen = lazy(() => import('~/components/screens/home/home'))
 const Profile = lazy(() => import('~/components/screens/profile'))
-const Navbar = lazy(() => import('~/components/shared/navbar/navbar'))
+const Navbar = lazy(() => import('~/components/shared/navbar'))
+const Controls = lazy(() => import('~/components/screens/home/_components/controls'))
 
 const Loading = () => (
   <div className="absolute flex h-screen w-screen items-center justify-center">
@@ -17,6 +18,7 @@ function Layout() {
     <main className="flex h-svh flex-col">
       <Navbar />
       <Outlet />
+      <Controls />
     </main>
   )
 }
