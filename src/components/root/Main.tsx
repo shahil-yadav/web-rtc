@@ -4,7 +4,8 @@ import { useSignIn } from '~/components/contexts/UserContext'
 import { Router } from '~/components/router/Router'
 import { setupFirebase, useAuth } from '~/lib/firebase'
 
-const storageWorker = new ComlinkWorker<typeof import('~/lib/workers')>(new URL('~/lib/workers', import.meta.url), {
+const storageWorker = new ComlinkWorker<typeof import('~/lib/workers')>(new URL('~/lib/workers'), {
+  name: 'storage-worker',
   type: 'module',
 })
 
