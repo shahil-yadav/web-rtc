@@ -1,9 +1,17 @@
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth'
-import { DocumentData, QuerySnapshot } from 'firebase/firestore'
 import { useEffect } from 'react'
-import { Image, useSignIn } from '~/components/contexts/UserContext'
+import { useSignIn } from '~/components/contexts/UserContext'
 import { Router } from '~/components/router/Router'
-import { setupFirebase, useAuth, useFirestore } from '~/lib/firebase'
+import { setupFirebase, useAuth } from '~/lib/firebase'
+
+// eslint-disable-next-line no-undef
+const storageWorker = new ComlinkWorker<typeof import('~/components/root/utils/storage')>(
+  new URL('~/components/root/utils/storage', import.meta.url),
+  {
+    name: 'firestore-storage-worker',
+    type: 'module',
+  },
+)
 
 function Main() {
   const { signIn } = useSignIn()
@@ -13,7 +21,7 @@ function Main() {
     const auth = useAuth()
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const avatar = await fetchRandomAvatar()
+        const avatar = await storageWorker.fetchRandomAvatar()
         signIn(user, avatar)
         console.log('Anonymous user signed-in.', user)
       } else {
@@ -32,24 +40,6 @@ function Main() {
     })
   }, [])
   return <Router />
-}
-
-async function fetchRandomAvatar(): Promise<Image> {
-  const { collection, limit, orderBy, query, where, getDocs } = await import('firebase/firestore')
-  const db = useFirestore()
-  const citiesRef = collection(db, 'profiles')
-  const TOTAL_PROFILE_PICTURES = 330
-  const index = Math.random() * TOTAL_PROFILE_PICTURES
-  let snapshot: QuerySnapshot<DocumentData>
-  snapshot = await getDocs(query(citiesRef, where('index', '>=', index), orderBy('index'), limit(1)))
-  if (snapshot.empty) {
-    snapshot = await getDocs(query(citiesRef, where('index', '<=', index), orderBy('index'), limit(1)))
-  }
-  const avatar = snapshot.docs[0].data()
-  return {
-    src: avatar.src,
-    alt: avatar.alt,
-  }
 }
 
 export default Main
