@@ -20,6 +20,25 @@ export function Remote() {
 
   return (
     <>
+      <Messages />
+      <video
+        autoPlay
+        width={800}
+        className={clsx('h-full w-full max-w-[800px] object-cover', { hidden: connected !== 'success' })}
+        playsInline
+        ref={ref}
+      />
+    </>
+  )
+}
+
+function Messages() {
+  const {
+    state: { connected, isOfferCreated },
+  } = useStreamsContext()
+
+  return (
+    <>
       {connected === 'none' && <span>No one is in the call</span>}
       {connected === 'error' && (
         <div className="flex flex-col items-center">
@@ -29,12 +48,7 @@ export function Remote() {
           </span>
         </div>
       )}
-      <video
-        autoPlay
-        className={clsx('h-full w-full max-w-[800px] object-cover', { hidden: connected !== 'success' })}
-        playsInline
-        ref={ref}
-      />
+      {isOfferCreated && <span>✅ Caller offer created successfully</span>}
     </>
   )
 }
