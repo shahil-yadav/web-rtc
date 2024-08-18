@@ -1,33 +1,58 @@
-let localStream: MediaStream | undefined
-let remoteStream: MediaStream
+class Streams {
+  static localStream: MediaStream
+  static remoteStream: MediaStream
 
-export async function openCameraWithAudioAndVideo() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    return true
-  } catch (error) {
-    return false
+  static {
+    Streams.localStream = new MediaStream()
+    Streams.remoteStream = new MediaStream()
   }
+
+  static getLocalStream() {
+    return Streams.localStream
+  }
+
+  static getRemoteStream() {
+    return Streams.remoteStream
+  }
+
+  static setRemoteStream(val: MediaStream | MediaStreamTrack) {
+    if (val instanceof MediaStream) Streams.remoteStream = val
+    else if (val instanceof MediaStreamTrack) Streams.remoteStream.addTrack(val)
+    else throw new Error('Check the parameters dumbass')
+  }
+
+  static setLocalStream(val: MediaStream) {
+    Streams.localStream = val
+  }
+
+  static async camera() {
+    try {
+      Streams.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      return true
+    } catch (error) {
+      console.error(error)
+      return false
+    }
+  }
+
+  static reset() {
+    Streams.setLocalStream(new MediaStream())
+    Streams.setRemoteStream(new MediaStream())
+  }
+}
+
+export function openCameraWithAudioAndVideo() {
+  return Streams.camera()
 }
 
 export function useLocalStream() {
-  /*
-    if (!localStream) {
-      // localStream = new MediaStream()
-    }
-  */
-
-  return localStream
+  return Streams.getLocalStream()
 }
 
 export function useRemoteStream() {
-  if (!remoteStream) {
-    setupRemoteStream()
-  }
-
-  return remoteStream
+  return Streams.getRemoteStream()
 }
 
-export function setupRemoteStream() {
-  remoteStream = new MediaStream()
+export function setRemoteStream(val: MediaStream | MediaStreamTrack) {
+  Streams.setRemoteStream(val)
 }

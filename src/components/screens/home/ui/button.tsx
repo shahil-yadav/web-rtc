@@ -6,7 +6,7 @@ export function Button({
   handleClickEvent,
 }: {
   children: ReactNode
-  disabled: boolean
+  disabled?: boolean
   handleClickEvent: () => Promise<void> | void
 }) {
   return (

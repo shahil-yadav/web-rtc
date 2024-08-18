@@ -3,6 +3,9 @@ module.exports = {
     browser: true,
     es2021: true,
   },
+  global: {
+    ComlinkWorker: 'readonly',
+  },
   extends: ['plugin:react/recommended', 'standard', 'prettier'],
   parser: '@typescript-eslint/parser',
   parserOptions: {

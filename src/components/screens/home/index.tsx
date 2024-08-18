@@ -1,15 +1,21 @@
 import { useEffect } from 'react'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
-import { Controls } from '~/components/screens/home/_components/controls'
 import { Head } from '~/components/shared/Head'
 import { Video } from './_components/video'
 import { setupPeerConnection, usePeerConnection } from './hooks/usePeerConnection'
-import { setupRemoteStream } from './hooks/useStreams'
+import { setRemoteStream } from './hooks/useStreams'
+
+const thread = new ComlinkWorker<typeof import('~/lib/workers')>(new URL('~/lib/workers', import.meta.url), {
+  type: 'module',
+})
 
 function Home() {
-  const { dispatch } = useStreamsContext()
-
+  const {
+    dispatch,
+    state: { room },
+  } = useStreamsContext()
   const peerConnection = usePeerConnection()
+
   useEffect(() => {
     function iceGatheringStateChange() {
       console.log(`ICE gathering state changed: ${peerConnection.iceGatheringState}`)
@@ -24,7 +30,7 @@ function Home() {
       } else if (connectionState === 'disconnected') {
         dispatch({ type: 'SET-CONNECTION', payload: 'error' })
         setupPeerConnection()
-        setupRemoteStream()
+        setRemoteStream(new MediaStream())
       }
     }
 
@@ -36,16 +42,39 @@ function Home() {
       console.log(`ICE connection state change: ${peerConnection.iceConnectionState}`)
     }
 
-    peerConnection.addEventListener('icegatheringstatechange', iceGatheringStateChange)
+    function iceCandidateEventHandler(event: RTCPeerConnectionIceEvent) {
+      if (!event.candidate) {
+        console.log('Got final ice-candidate')
+        return
+      }
+      console.log('Ice Candidate :', event)
+      thread.sendLocalIceCandidatesToDb({
+        candidate: event.candidate.toJSON(),
+        roomID: room,
+      })
+    }
+
+    function listenRemoteStreams(event: RTCTrackEvent) {
+      event.streams[0].getTracks().forEach((track) => {
+        console.log('Attatching a remote track to remote streams', track)
+        setRemoteStream(track)
+      })
+    }
+
     peerConnection.addEventListener('connectionstatechange', connectionStateChange)
-    peerConnection.addEventListener('signalingstatechange', signalingStateChange)
+    peerConnection.addEventListener('icecandidate', iceCandidateEventHandler)
     peerConnection.addEventListener('iceconnectionstatechange ', iceConnectionStateChange)
+    peerConnection.addEventListener('icegatheringstatechange', iceGatheringStateChange)
+    peerConnection.addEventListener('signalingstatechange', signalingStateChange)
+    peerConnection.addEventListener('track', listenRemoteStreams)
 
     return () => {
-      peerConnection.removeEventListener('icegatheringstatechange', iceGatheringStateChange)
       peerConnection.removeEventListener('connectionstatechange', connectionStateChange)
-      peerConnection.removeEventListener('signalingstatechange', signalingStateChange)
+      peerConnection.removeEventListener('icecandidate', iceCandidateEventHandler)
       peerConnection.removeEventListener('iceconnectionstatechange ', iceConnectionStateChange)
+      peerConnection.removeEventListener('icegatheringstatechange', iceGatheringStateChange)
+      peerConnection.removeEventListener('signalingstatechange', signalingStateChange)
+      peerConnection.removeEventListener('track', listenRemoteStreams)
     }
   }, [peerConnection])
 
@@ -59,7 +88,6 @@ function Home() {
             <Video state="local" />
           </div>
         </div>
-        <Controls />
       </main>
     </>
   )

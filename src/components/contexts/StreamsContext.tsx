@@ -3,6 +3,7 @@ import { createContext, ReactNode, useContext, useReducer } from 'react'
 export type Status = 'loading' | 'error' | 'success' | 'none'
 
 interface State {
+  isOfferCreated: boolean
   camera: boolean
   connected: Status
   room: string
@@ -15,6 +16,7 @@ export type Action =
       payload: string
     }
   | { type: 'SET-CONNECTION'; payload: Status }
+  | { type: 'SET-RTC-OFFER'; payload: boolean }
 
 function reducer(state: State, action: Action) {
   switch (action.type) {
@@ -36,6 +38,12 @@ function reducer(state: State, action: Action) {
         room: action.payload,
       }
 
+    case 'SET-RTC-OFFER':
+      return {
+        ...state,
+        isOfferCreated: action.payload,
+      }
+
     default:
       return state
   }
@@ -50,6 +58,7 @@ const initialValue: State = {
   room: '',
   connected: 'none',
   camera: false,
+  isOfferCreated: false,
 }
 
 const Context = createContext<ContextProps>({
