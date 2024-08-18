@@ -5,7 +5,6 @@ import { Connect } from './connect'
 
 function Controls() {
   const { roomID } = useParams()
-
   return (
     <div className="flex justify-center gap-5 bg-base-300 py-8">
       <Camera />

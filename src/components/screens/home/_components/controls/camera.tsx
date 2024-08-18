@@ -1,16 +1,17 @@
+import { CiVideoOff, CiVideoOn } from 'react-icons/ci'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
+import { useToast } from '~/components/contexts/ToastContext'
 import { openCameraWithAudioAndVideo, useLocalStream } from '~/components/screens/home/hooks/useStreams'
 import { Button } from '~/components/screens/home/ui/button'
-import { CiVideoOff, CiVideoOn } from 'react-icons/ci'
-import { useToast } from '~/components/contexts/ToastContext'
 
 export function Camera() {
   const {
     dispatch,
     state: { camera },
   } = useStreamsContext()
-  const localStream = useLocalStream()
   const toast = useToast()
+  const localStream = useLocalStream()
+
   return (
     <Button
       handleClickEvent={() => {
@@ -18,7 +19,7 @@ export function Camera() {
           openCameraWithAudioAndVideo().then((state) => dispatch({ type: 'SET-CAMERA', payload: state }))
           toast.open('Opening camera. Please wait!')
         } else {
-          localStream?.getTracks().forEach((track) => track.stop())
+          localStream.getTracks().forEach((track) => track.stop())
           dispatch({ type: 'SET-CAMERA', payload: false })
         }
       }}
