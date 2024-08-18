@@ -31,3 +31,23 @@ export function useRemoteStream() {
 export function setupRemoteStream() {
   remoteStream = new MediaStream()
 }
+
+class Streams {
+  static localStream: MediaStream = new MediaStream()
+  static remoteStream: MediaStream = new MediaStream()
+
+  async openCameraWithAudioAndVideo() {
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      return true
+    } catch (error) {
+      console.error(error)
+      return false
+    }
+  }
+
+  reset() {
+    localStream = new MediaStream()
+    remoteStream = new MediaStream()
+  }
+}

@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
-import { Controls } from '~/components/screens/home/_components/controls'
 import { Head } from '~/components/shared/Head'
 import { Video } from './_components/video'
 import { setupPeerConnection, usePeerConnection } from './hooks/usePeerConnection'
@@ -59,7 +58,6 @@ function Home() {
             <Video state="local" />
           </div>
         </div>
-        <Controls />
       </main>
     </>
   )
