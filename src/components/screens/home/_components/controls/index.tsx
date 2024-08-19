@@ -4,7 +4,7 @@ import { Create } from '~/components/screens/home/_components/controls/create'
 import { Hangup } from '~/components/screens/home/_components/controls/hangup'
 import { Connect } from './connect'
 
-export function Controls() {
+function Controls() {
   const { roomID } = useParams()
   return (
     <div className="flex justify-center gap-5 bg-base-300 py-8">
@@ -14,3 +14,5 @@ export function Controls() {
     </div>
   )
 }
+
+export default Controls

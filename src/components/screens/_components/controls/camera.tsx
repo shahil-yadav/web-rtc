@@ -1,16 +1,17 @@
 import { VideocamIcon } from '~/assets/svg/VideocamIcon'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
-import { openCameraWithAudioAndVideo } from '~/components/screens/home/hooks/useStreams'
-import { Button } from '~/components/screens/home/ui/button'
+import { openCameraWithAudioAndVideo } from '~/hooks/useStreams'
+import { Button } from '~/components/ui/button'
 
 export function Camera() {
   const {
     dispatch,
-    state: { isCameraOpened: camera },
+    state: { isCameraOpened },
   } = useStreamsContext()
+
   return (
     <Button
-      disabled={camera}
+      disabled={isCameraOpened}
       handleClickEvent={async () => {
         dispatch({ type: 'SET-CAMERA', payload: await openCameraWithAudioAndVideo() })
       }}

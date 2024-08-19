@@ -8,7 +8,7 @@ import { useLocalStream, useRemoteStream } from '../../hooks/useStreams'
 export function Connect() {
   const navigate = useNavigate()
   const {
-    state: { camera },
+    state: { isCameraOpened: camera },
   } = useStreamsContext()
 
   const { roomID } = useParams()

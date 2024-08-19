@@ -8,7 +8,7 @@ import { useLocalStream, useRemoteStream } from '../../hooks/useStreams'
 
 export function Hangup() {
   const {
-    state: { room },
+    state: { roomID: room },
   } = useStreamsContext()
   const { roomID } = useParams()
   const db = useFirestore()

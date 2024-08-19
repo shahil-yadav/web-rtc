@@ -1,7 +1,7 @@
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
-import { useLocalStream } from '../hooks/useStreams'
-import { LocalAvatar } from './placeholder'
+import { LocalAvatar } from '~/components/screens/caller/_components/placeholder'
+import { useLocalStream } from '~/hooks/useStreams'
 
 export function Local() {
   const {

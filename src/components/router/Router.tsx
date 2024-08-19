@@ -2,15 +2,19 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom'
 
 const Page404Screen = lazy(() => import('~/components/screens/404'))
-const WebRtcScreen = lazy(() => import('~/components/screens/home/home'))
+// const WebRtcScreen = lazy(() => import('~/components/screens/home'))
 const Profile = lazy(() => import('~/components/screens/profile'))
 const Navbar = lazy(() => import('~/components/shared/navbar/navbar'))
+const Reciever = lazy(() => import('~/components/screens/receiver'))
+const Caller = lazy(() => import('~/components/screens/caller'))
 
-const Loading = () => (
-  <div className="absolute flex h-screen w-screen items-center justify-center">
-    <span className="loading loading-spinner w-20" />
-  </div>
-)
+function Loading() {
+  return (
+    <div className="absolute flex h-screen w-screen items-center justify-center">
+      <span className="loading loading-spinner w-14" />
+    </div>
+  )
+}
 
 function Layout() {
   return (
@@ -37,11 +41,11 @@ const InnerRouter = () => {
       children: [
         {
           index: true,
-          element: <WebRtcScreen />,
+          element: <Caller />,
         },
         {
           path: ':roomID',
-          element: <WebRtcScreen />,
+          element: <Reciever />,
         },
         {
           path: 'profile',

@@ -13,7 +13,7 @@ import { useFirestore } from '~/lib/firebase'
 
 export function Create() {
   const {
-    state: { room, camera, connected },
+    state: { roomID: room, isCameraOpened: camera, connection: connected },
     dispatch,
   } = useStreamsContext()
 

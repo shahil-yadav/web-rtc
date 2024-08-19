@@ -5,6 +5,9 @@ module.exports = {
   },
   extends: ['plugin:react/recommended', 'standard', 'prettier'],
   parser: '@typescript-eslint/parser',
+  globals: {
+    VoidFunction: 'readonly',
+  },
   parserOptions: {
     ecmaFeatures: {
       jsx: true,

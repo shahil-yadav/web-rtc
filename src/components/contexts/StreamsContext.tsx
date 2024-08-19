@@ -3,9 +3,9 @@ import { createContext, ReactNode, useContext, useReducer } from 'react'
 export type Status = 'loading' | 'error' | 'success' | 'none'
 
 interface State {
-  camera: boolean
-  connected: Status
-  room: string
+  isCameraOpened: boolean
+  connection: Status
+  roomID: string
 }
 
 export type Action =
@@ -16,24 +16,24 @@ export type Action =
     }
   | { type: 'SET-CONNECTION'; payload: Status }
 
-function reducer(state: State, action: Action) {
+function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'SET-CAMERA':
       return {
         ...state,
-        camera: action.payload,
+        isCameraOpened: action.payload,
       }
 
     case 'SET-CONNECTION':
       return {
         ...state,
-        connected: action.payload,
+        connection: action.payload,
       }
 
     case 'SET-ROOM':
       return {
         ...state,
-        room: action.payload,
+        roomID: action.payload,
       }
 
     default:
@@ -47,9 +47,9 @@ interface ContextProps {
 }
 
 const initialValue: State = {
-  room: '',
-  connected: 'none',
-  camera: false,
+  roomID: '',
+  connection: 'none',
+  isCameraOpened: false,
 }
 
 const Context = createContext<ContextProps>({

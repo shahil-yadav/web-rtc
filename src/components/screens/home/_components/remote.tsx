@@ -6,7 +6,7 @@ import clsx from 'clsx'
 export function Remote() {
   const ref = useRef<HTMLVideoElement>(null)
   const {
-    state: { connected },
+    state: { connection: connected },
   } = useStreamsContext()
   const remoteStream = useRemoteStream()
 
