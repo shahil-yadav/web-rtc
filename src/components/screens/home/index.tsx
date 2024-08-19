@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
 import { Head } from '~/components/shared/Head'
+import { useFirestore } from '~/lib/firebase'
 import { Video } from './_components/video'
 import { setupPeerConnection, usePeerConnection } from './hooks/usePeerConnection'
 import { setRemoteStream } from './hooks/useStreams'
+import { useParams } from 'react-router-dom'
 
 const thread = new ComlinkWorker<typeof import('~/lib/workers')>(new URL('~/lib/workers', import.meta.url), {
   type: 'module',
@@ -12,9 +14,61 @@ const thread = new ComlinkWorker<typeof import('~/lib/workers')>(new URL('~/lib/
 function Home() {
   const {
     dispatch,
-    state: { room },
+    state: { room, role },
   } = useStreamsContext()
   const peerConnection = usePeerConnection()
+  const db = useFirestore()
+  const { roomID } = useParams()
+
+  useEffect(() => {
+    if (roomID !== undefined) {
+      dispatch({ type: 'SET-ROOM', payload: roomID })
+      dispatch({ type: 'SET-ROLE', payload: 'callee' })
+    }
+  }, [])
+
+  useEffect(() => {
+    // TODO: Fix: ROOM ERR -> (cannot distinguish between callee and caller rooms id)
+
+    // eslint-disable-next-line no-undef
+    const unsubscribe: VoidFunction[] = []
+    async function snapshotSetup(role: 'caller' | 'callee') {
+      const { collection, doc, onSnapshot, query } = await import('firebase/firestore')
+
+      unsubscribe.push(
+        onSnapshot(query(collection(db, 'rooms', room, `${role}Candidates`)), (snapshot) => {
+          snapshot.docChanges().forEach(async (change) => {
+            if (change.type === 'added') {
+              const iceCandidate = new RTCIceCandidate(change.doc.data())
+              console.log(`Got new remote ICE candidate: ${iceCandidate.address}~${iceCandidate.port}`)
+              await peerConnection.addIceCandidate(iceCandidate)
+            }
+          })
+        }),
+      )
+
+      if (role === 'caller') {
+        unsubscribe.push(
+          onSnapshot(doc(db, 'rooms', room), async (snapshot) => {
+            const data = snapshot.data()
+            if (!peerConnection.currentRemoteDescription && data?.answer) {
+              console.log('Got remote description: ', data.answer)
+              const rtcSessionDescription = new RTCSessionDescription(data.answer)
+              await peerConnection.setRemoteDescription(rtcSessionDescription)
+            }
+          }),
+        )
+      }
+    }
+
+    if (role === 'caller') {
+      snapshotSetup('caller')
+    }
+
+    return () => {
+      unsubscribe.forEach((fn) => fn())
+    }
+  }, [room, role])
 
   useEffect(() => {
     function iceGatheringStateChange() {
@@ -48,17 +102,13 @@ function Home() {
         return
       }
       console.log('Ice Candidate :', event)
-      thread.sendLocalIceCandidatesToDb({
-        candidate: event.candidate.toJSON(),
-        roomID: room,
-      })
-    }
 
-    function listenRemoteStreams(event: RTCTrackEvent) {
-      event.streams[0].getTracks().forEach((track) => {
-        console.log('Attatching a remote track to remote streams', track)
-        setRemoteStream(track)
-      })
+      if (role !== 'idle')
+        thread.sendLocalIceCandidatesToDb({
+          candidate: event.candidate.toJSON(),
+          roomID: room,
+          role,
+        })
     }
 
     peerConnection.addEventListener('connectionstatechange', connectionStateChange)
@@ -66,7 +116,6 @@ function Home() {
     peerConnection.addEventListener('iceconnectionstatechange ', iceConnectionStateChange)
     peerConnection.addEventListener('icegatheringstatechange', iceGatheringStateChange)
     peerConnection.addEventListener('signalingstatechange', signalingStateChange)
-    peerConnection.addEventListener('track', listenRemoteStreams)
 
     return () => {
       peerConnection.removeEventListener('connectionstatechange', connectionStateChange)
@@ -74,9 +123,8 @@ function Home() {
       peerConnection.removeEventListener('iceconnectionstatechange ', iceConnectionStateChange)
       peerConnection.removeEventListener('icegatheringstatechange', iceGatheringStateChange)
       peerConnection.removeEventListener('signalingstatechange', signalingStateChange)
-      peerConnection.removeEventListener('track', listenRemoteStreams)
     }
-  }, [peerConnection])
+  }, [peerConnection, role])
 
   return (
     <>

@@ -3,7 +3,7 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  global: {
+  globals: {
     ComlinkWorker: 'readonly',
   },
   extends: ['plugin:react/recommended', 'standard', 'prettier'],

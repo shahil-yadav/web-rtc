@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
-import { useRemoteStream } from '../hooks/useStreams'
+import { setRemoteStream, useRemoteStream } from '../hooks/useStreams'
 import clsx from 'clsx'
+import { usePeerConnection } from '../hooks/usePeerConnection'
 
 export function Remote() {
   const ref = useRef<HTMLVideoElement>(null)
@@ -9,14 +10,23 @@ export function Remote() {
     state: { connected },
   } = useStreamsContext()
   const remoteStream = useRemoteStream()
+  const peerConnection = usePeerConnection()
 
   useEffect(() => {
-    if (!ref.current) return
-
-    if (connected === 'success' && remoteStream !== undefined) {
-      ref.current.srcObject = remoteStream
+    function listenRemoteStreams(event: RTCTrackEvent) {
+      event.streams[0].getTracks().forEach((track) => {
+        console.log('Attatching a remote track to remote streams', track)
+        setRemoteStream(track)
+      })
+      if (ref.current !== null) {
+        ref.current.srcObject = remoteStream
+      }
     }
-  }, [connected])
+    peerConnection.addEventListener('track', listenRemoteStreams)
+    return () => {
+      peerConnection.removeEventListener('track', listenRemoteStreams)
+    }
+  }, [])
 
   return (
     <>
@@ -39,16 +49,16 @@ function Messages() {
 
   return (
     <>
-      {connected === 'none' && <span>No one is in the call</span>}
+      {connected === 'none' && <p>No one is in the call</p>}
       {connected === 'error' && (
         <div className="flex flex-col items-center">
-          <span className="text-2xl text-error">Remote connection lost</span>
-          <span className="text-xl text-error-content">
+          <p className="text-2xl text-error">Remote connection lost</p>
+          <p className="text-xl text-error-content">
             Please create a new room for <span className="font-semibold">reconnection</span>
-          </span>
+          </p>
         </div>
       )}
-      {isOfferCreated && <span>✅ Caller offer created successfully</span>}
+      {isOfferCreated && connected === 'none' && <p>✅ Caller offer created successfully</p>}
     </>
   )
 }

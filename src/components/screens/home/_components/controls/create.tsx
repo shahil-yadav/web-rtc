@@ -29,7 +29,8 @@ export function Create() {
 
   async function handleCreateRoom() {
     if (!localStream || !remoteStream) throw new Error('Local Stream or Remote Stream is not setup')
-    const { addDoc, collection, doc, onSnapshot, query, updateDoc } = await import('firebase/firestore')
+    // const { addDoc, collection, doc, onSnapshot, query, updateDoc } = await import('firebase/firestore')
+    dispatch({ type: 'SET-ROLE', payload: 'caller' })
 
     let roomID: string | undefined
     /** 0. Create a document(room) in the collection of rooms [START] 👇 */
@@ -62,13 +63,12 @@ export function Create() {
       peerConnection.setLocalDescription(offer)
 
       if (!roomID) return
-      thread.sendCallerOfferToDb(roomID, {
+      thread.sendCallerOfferOrAnswerToDb(roomID, {
         offer: {
           type: offer.type,
           sdp: offer.sdp,
         },
       })
-
       dispatch({ type: 'SET-RTC-OFFER', payload: true })
     }
     /** Create an offer and send to the DB[END] 👆 */
@@ -78,27 +78,11 @@ export function Create() {
     /** Add remote stream to the peer connection[END] 👆 */
 
     /** 5. Listen for remote ice candidates[START] 👇 */
-    if (!roomID) return
-    onSnapshot(query(collection(db, 'rooms', roomID, 'calleeCandidates')), (snapshot) => {
-      snapshot.docChanges().forEach(async (change) => {
-        if (change.type === 'added') {
-          const iceCandidate = new RTCIceCandidate(change.doc.data())
-          console.log(`Got new remote ICE candidate: ${iceCandidate.address}~${iceCandidate.port}`)
-          await peerConnection.addIceCandidate(iceCandidate)
-        }
-      })
-    })
+    //  -->
     /** Listen for remote ice candidates[END] 👆 */
 
     /** 6. Listen for remote answers[START] 👇 */
-    onSnapshot(doc(db, 'rooms', roomID), async (snapshot) => {
-      const data = snapshot.data()
-      if (!peerConnection.currentRemoteDescription && data?.answer) {
-        console.log('Got remote description: ', data.answer)
-        const rtcSessionDescription = new RTCSessionDescription(data.answer)
-        await peerConnection.setRemoteDescription(rtcSessionDescription)
-      }
-    })
+    // -->
     /** Listen for remote answers[END] 👆 */
   }
 

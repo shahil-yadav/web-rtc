@@ -1,14 +1,17 @@
-import { useParams } from 'react-router-dom'
+import { useStreamsContext } from '~/components/contexts/StreamsContext'
 import { Camera } from '~/components/screens/home/_components/controls/camera'
 import { Create } from '~/components/screens/home/_components/controls/create'
 import { Connect } from './connect'
 
 function Controls() {
-  const { roomID } = useParams()
+  const {
+    state: { role },
+  } = useStreamsContext()
+
   return (
     <div className="flex justify-center gap-5 bg-base-300 py-8">
       <Camera />
-      {roomID ? <Connect /> : <Create />}
+      {role === 'callee' ? <Connect /> : <Create />}
     </div>
   )
 }
