@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
 import { Video } from '~/components/screens/_components/video'
 import { Controls } from '~/components/screens/receiver/_components/controls'
+import { Messages } from '~/components/screens/receiver/_components/controls/messages'
 import { Head } from '~/components/shared/Head'
 import { usePeerConnection } from '~/hooks/usePeerConnection'
 import { useFirestore } from '~/lib/firebase'
@@ -22,6 +23,12 @@ function Reciever() {
     }
 
     const roomID = state.roomID
+
+    function connectionStateChangeEventListener() {
+      console.log(`Peer connection state change => ${peerConnection.connectionState}`)
+      dispatch({ type: 'SET-CONNECTION-ESTABILISHMENT-STATUS', payload: peerConnection.connectionState })
+    }
+    peerConnection.addEventListener('connectionstatechange', connectionStateChangeEventListener)
 
     /** 2. Listen for ice-candidates[START] 👇 */
     function sendLocalIceCandidatesToDb(event: RTCPeerConnectionIceEvent) {
@@ -53,6 +60,7 @@ function Reciever() {
 
     return () => {
       peerConnection.removeEventListener('icecandidate', sendLocalIceCandidatesToDb)
+      peerConnection.removeEventListener('connectionstatechange', connectionStateChangeEventListener)
       unsubSnapshot.forEach((fn) => fn())
     }
   }, [peerConnection, state.roomID])
@@ -62,6 +70,7 @@ function Reciever() {
       <Head title="Reciever" description="P2P Video Chatting Platform" />
       <main className="flex h-full flex-col">
         <div className="relative my-5 flex h-full items-center justify-center">
+          {state.isConnectionEstablished !== 'connected' && <Messages />}
           <Video state="remote" />
           <div className="absolute bottom-5 right-5 flex aspect-[2/3] w-1/3 max-w-40 items-center justify-center bg-base-200">
             <Video state="local" />

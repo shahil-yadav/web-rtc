@@ -4,36 +4,41 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import AddIcon from '~/assets/svg/AddIcon'
 import { Status, useStreamsContext } from '~/components/contexts/StreamsContext'
+import { Camera } from '~/components/screens/_components/controls/camera'
 import { Video } from '~/components/screens/_components/video'
+import { Button } from '~/components/ui/button'
+import { Tooltip } from '~/components/ui/tooltip'
+import { usePeerConnection } from '~/hooks/usePeerConnection'
+import { useLocalStream } from '~/hooks/useStreams'
 import { useFirestore } from '~/lib/firebase'
-import { usePeerConnection } from '../../../../../hooks/usePeerConnection'
-import { useLocalStream } from '../../../../../hooks/useStreams'
-import { Button } from '../../../../ui/button'
-import { Tooltip } from '../../../../ui/tooltip'
-import { Camera } from '../../../_components/controls/camera'
 
 export function Create() {
-  const { state, dispatch } = useStreamsContext()
-  const [status, setStatus] = useState<Status>('none')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  const peerConnection = usePeerConnection()
-  const localStream = useLocalStream()
+  const [status, setStatus] = useState<Status>('none')
+  const { state, dispatch } = useStreamsContext()
   const db = useFirestore()
+  const localStream = useLocalStream()
+  const peerConnection = usePeerConnection()
 
   async function handleCreateRoom() {
     let roomID = state.roomID
-    /** 0. Create a document(room) in the collection of rooms [START] 👇 */
-    try {
-      setStatus(() => 'loading')
-      const roomIDDocRef = await addDoc(collection(db, 'rooms'), {})
-      roomID = roomIDDocRef.id
-      dispatch({ type: 'SET-ROOM', payload: roomIDDocRef.id })
-      setStatus(() => 'success')
-    } catch (error) {
-      setStatus(() => 'error')
+
+    if (roomID.length === 0) {
+      /** 0. Create a document(room) in the collection of rooms [START] 👇 */
+      try {
+        setStatus(() => 'loading')
+        const roomIDDocRef = await addDoc(collection(db, 'rooms'), {})
+        roomID = roomIDDocRef.id
+        dispatch({ type: 'SET-ROOM', payload: roomIDDocRef.id })
+        setStatus(() => 'success')
+      } catch (error) {
+        setStatus(() => 'error')
+      }
+      /** Create a document(room) in the collection of rooms [END] 👆 */
     }
-    /** Create a document(room) in the collection of rooms [END] 👆 */
+
+    // setupPeerConnection()
+    // setupRemoteStream(new MediaStream())
 
     /** 1. Add local stream to the peer connection[START] 👇 */
     localStream.getTracks().forEach((track) => {
@@ -43,18 +48,16 @@ export function Create() {
     /**  Add local stream to the peer connection[END] 👆 */
 
     /** 3. Create an offer and send to the DB[START] 👇 */
-    if (!peerConnection.currentLocalDescription) {
-      const offer = await peerConnection.createOffer()
-      peerConnection.setLocalDescription(offer)
-      const roomWithOffer = {
-        offer: {
-          type: offer.type,
-          sdp: offer.sdp,
-        },
-      }
-      if (!roomID) return
-      await updateDoc(doc(db, 'rooms', roomID), roomWithOffer)
+    const offer = await peerConnection.createOffer()
+    peerConnection.setLocalDescription(offer)
+    const roomWithOffer = {
+      offer: {
+        type: offer.type,
+        sdp: offer.sdp,
+      },
     }
+    if (!roomID) return
+    await updateDoc(doc(db, 'rooms', roomID), roomWithOffer)
     /** Create an offer and send to the DB[END] 👆 */
   }
 
@@ -80,7 +83,7 @@ export function Create() {
                 state.roomID.length === 0 && 'No room created'
               )}
               {status === 'error' && 'Please retry !'}
-              {status === 'success' && `Room: ${state.roomID}`}
+              {state.roomID.length > 0 && `Room: ${state.roomID}`}
             </Dialog.Title>
             <div className="flex w-full flex-col items-center justify-center gap-2">
               <div className="h-52 w-40">
@@ -105,11 +108,9 @@ export function Create() {
               <button className="btn" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </button>
-              {state.roomID.length === 0 && (
-                <button className="btn" onClick={handleCreateRoom}>
-                  Create Room
-                </button>
-              )}
+              <button className="btn" onClick={handleCreateRoom}>
+                Create Room
+              </button>
             </div>
           </Dialog.Panel>
         </div>

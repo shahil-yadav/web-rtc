@@ -3,18 +3,19 @@ import { createContext, ReactNode, useContext, useReducer } from 'react'
 export type Status = 'loading' | 'error' | 'success' | 'none'
 
 interface State {
-  isCameraOpened: boolean
   connection: Status
+  isCameraOpened: boolean
+  isConnectionEstablished?: RTCPeerConnectionState
+  isRemoteAnswerRecieved: boolean
   roomID: string
 }
 
 export type Action =
   | { type: 'SET-CAMERA'; payload: boolean }
-  | {
-      type: 'SET-ROOM'
-      payload: string
-    }
+  | { type: 'SET-CONNECTION-ESTABILISHMENT-STATUS'; payload: RTCPeerConnectionState }
   | { type: 'SET-CONNECTION'; payload: Status }
+  | { type: 'SET-REMOTE-ANSWER-STATUS'; payload: boolean }
+  | { type: 'SET-ROOM'; payload: string }
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -24,10 +25,22 @@ function reducer(state: State, action: Action): State {
         isCameraOpened: action.payload,
       }
 
+    case 'SET-CONNECTION-ESTABILISHMENT-STATUS':
+      return {
+        ...state,
+        isConnectionEstablished: action.payload,
+      }
+
     case 'SET-CONNECTION':
       return {
         ...state,
         connection: action.payload,
+      }
+
+    case 'SET-REMOTE-ANSWER-STATUS':
+      return {
+        ...state,
+        isRemoteAnswerRecieved: action.payload,
       }
 
     case 'SET-ROOM':
@@ -47,9 +60,10 @@ interface ContextProps {
 }
 
 const initialValue: State = {
-  roomID: '',
   connection: 'none',
   isCameraOpened: false,
+  isRemoteAnswerRecieved: false,
+  roomID: '',
 }
 
 const Context = createContext<ContextProps>({

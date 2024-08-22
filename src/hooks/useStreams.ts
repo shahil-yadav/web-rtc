@@ -53,6 +53,6 @@ export function useRemoteStream() {
   return Streams.getRemoteStream()
 }
 
-export function setRemoteStream(val: MediaStream | MediaStreamTrack) {
-  Streams.setRemoteStream(val)
+export function useSetRemoteStream() {
+  return (val: MediaStream | MediaStreamTrack) => Streams.setRemoteStream(val)
 }

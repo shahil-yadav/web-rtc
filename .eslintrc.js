@@ -7,6 +7,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   globals: {
     VoidFunction: 'readonly',
+    RTCPeerConnectionState: 'readonly',
   },
   parserOptions: {
     ecmaFeatures: {
