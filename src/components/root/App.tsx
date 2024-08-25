@@ -1,19 +1,20 @@
 import { HelmetProvider } from 'react-helmet-async'
 import { AuthProvider } from '~/components/contexts/UserContext'
 import Main from '~/components/root/Main'
-import { ToastProvider } from '../contexts/ToastContext'
 import StreamsProvider from '../contexts/StreamsContext'
+import { Toaster } from 'react-hot-toast'
 
 export const App = () => {
   return (
     <HelmetProvider>
-      <ToastProvider>
-        <AuthProvider>
-          <StreamsProvider>
+      <AuthProvider>
+        <StreamsProvider>
+          <>
             <Main />
-          </StreamsProvider>
-        </AuthProvider>
-      </ToastProvider>
+            <Toaster />
+          </>
+        </StreamsProvider>
+      </AuthProvider>
     </HelmetProvider>
   )
 }
