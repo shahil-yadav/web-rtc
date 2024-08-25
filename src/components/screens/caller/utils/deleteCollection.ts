@@ -40,6 +40,7 @@ export function deleteCollection(db: Firestore, collectionRef: CollectionReferen
     // Recurse on the next process tick, to avoid
     // exploding the stack.
     setTimeout(() => {
+      console.log('Deleting collection in setTimeout')
       deleteQueryBatch(db, query, batchSize, resolve)
     }, 0)
   }
