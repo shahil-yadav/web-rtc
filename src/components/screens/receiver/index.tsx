@@ -1,21 +1,11 @@
-import { Unsubscribe } from 'firebase/auth'
-import { addDoc, collection, onSnapshot, query } from 'firebase/firestore'
-import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
 import { useStreamsContext } from '~/components/contexts/StreamsContext'
 import { Video } from '~/components/screens/_components/video'
 import { Controls } from '~/components/screens/receiver/_components/controls'
 import { Messages } from '~/components/screens/receiver/_components/controls/messages'
 import { Head } from '~/components/shared/Head'
-import { usePeerConnection } from '~/hooks/usePeerConnection'
-import { useFirestore } from '~/lib/firebase'
 
 function Reciever() {
-  const peerConnection = usePeerConnection()
-
-  const { state, dispatch } = useStreamsContext()
-  const db = useFirestore()
-  const { roomID: pathVariable } = useParams()
+  const { state } = useStreamsContext()
 
   return (
     <>

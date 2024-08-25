@@ -2,7 +2,7 @@ import { collection, doc, setDoc } from 'firebase/firestore'
 import toast from 'react-hot-toast'
 import { iceConfiguration, useStreamsContext } from '~/components/contexts/StreamsContext'
 import { useCreateCall } from '~/components/screens/caller/hooks/useCreateCall'
-import { deleteCollection } from '~/components/screens/caller/utils/deleteCollection'
+import { deleteCollection } from '~/components/screens/utils/deleteCollection'
 import { useFirestore } from '~/lib/firebase'
 
 export function useReset() {
@@ -36,6 +36,7 @@ export function useReset() {
       toast.success('New Peer Connection is ready')
       toast.success('Call Made')
     })
+
     toast.dismiss(toastID)
   }
 }
