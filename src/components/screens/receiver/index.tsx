@@ -17,54 +17,6 @@ function Reciever() {
   const db = useFirestore()
   const { roomID: pathVariable } = useParams()
 
-  useEffect(() => {
-    if (state.roomID.length === 0) {
-      return
-    }
-
-    const roomID = state.roomID
-
-    function connectionStateChangeEventListener() {
-      console.log(`Peer connection state change => ${peerConnection.connectionState}`)
-      dispatch({ type: 'SET-CONNECTION-ESTABILISHMENT-STATUS', payload: peerConnection.connectionState })
-    }
-    peerConnection.addEventListener('connectionstatechange', connectionStateChangeEventListener)
-
-    /** 2. Listen for ice-candidates[START] 👇 */
-    function sendLocalIceCandidatesToDb(event: RTCPeerConnectionIceEvent) {
-      if (!event.candidate) {
-        console.log('Got final candidates!')
-        return
-      }
-      console.log('Got candidate: ', event.candidate)
-      if (!roomID) return
-      addDoc(collection(db, 'rooms', roomID, 'calleeCandidates'), event.candidate.toJSON())
-    }
-    peerConnection.addEventListener('icecandidate', sendLocalIceCandidatesToDb)
-    /**  Listen for ice-candidates[END] 👆 */
-
-    const unsubSnapshot: Unsubscribe[] = []
-    unsubSnapshot.push(
-      /** 5.Listening for remote ice candidates[START] 👇 */
-      onSnapshot(query(collection(db, 'rooms', roomID, 'callerCandidates')), (snapshot) => {
-        snapshot.docChanges().forEach(async (change) => {
-          if (change.type === 'added') {
-            const iceCandidate = change.doc.data()
-            console.log(`Got new remote ICE candidate: ${JSON.stringify(iceCandidate)}`)
-            await peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidate))
-          }
-        })
-      }),
-      /** Listening for remote ice candidates[END] 👆 */
-    )
-
-    return () => {
-      peerConnection.removeEventListener('icecandidate', sendLocalIceCandidatesToDb)
-      peerConnection.removeEventListener('connectionstatechange', connectionStateChangeEventListener)
-      unsubSnapshot.forEach((fn) => fn())
-    }
-  }, [peerConnection, state.roomID])
-
   return (
     <>
       <Head title="Reciever" description="P2P Video Chatting Platform" />

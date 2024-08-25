@@ -1,65 +1,87 @@
 import { Dialog } from '@headlessui/react'
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore'
-import { useState } from 'react'
+import { Unsubscribe } from 'firebase/auth'
+import { addDoc, collection, doc, onSnapshot, query } from 'firebase/firestore'
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { Link } from 'react-router-dom'
 import AddIcon from '~/assets/svg/AddIcon'
 import { Status, useStreamsContext } from '~/components/contexts/StreamsContext'
 import { Camera } from '~/components/screens/_components/controls/camera'
 import { Video } from '~/components/screens/_components/video'
+import { useCreateCall } from '~/components/screens/caller/hooks/useCreateCall'
 import { Button } from '~/components/ui/button'
 import { Tooltip } from '~/components/ui/tooltip'
-import { usePeerConnection } from '~/hooks/usePeerConnection'
-import { useLocalStream } from '~/hooks/useStreams'
 import { useFirestore } from '~/lib/firebase'
 
 export function Create() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [status, setStatus] = useState<Status>('none')
-  const { state, dispatch } = useStreamsContext()
+  const { state, dispatch, reference } = useStreamsContext()
+  const call = useCreateCall()
   const db = useFirestore()
-  const localStream = useLocalStream()
-  const peerConnection = usePeerConnection()
 
-  async function handleCreateRoom() {
-    let roomID = state.roomID
-
-    if (roomID.length === 0) {
-      /** 0. Create a document(room) in the collection of rooms [START] 👇 */
-      try {
-        setStatus(() => 'loading')
-        const roomIDDocRef = await addDoc(collection(db, 'rooms'), {})
-        roomID = roomIDDocRef.id
-        dispatch({ type: 'SET-ROOM', payload: roomIDDocRef.id })
-        setStatus(() => 'success')
-      } catch (error) {
-        setStatus(() => 'error')
-      }
-      /** Create a document(room) in the collection of rooms [END] 👆 */
+  /** Create a document(room) in the collection of rooms  */
+  async function createRoomInDb() {
+    try {
+      setStatus(() => 'loading')
+      const roomIDDocRef = await addDoc(collection(db, 'rooms'), {})
+      dispatch({ type: 'SET-ROOM', payload: roomIDDocRef.id })
+      setStatus(() => 'success')
+      return roomIDDocRef.id
+    } catch (error) {
+      setStatus(() => 'error')
+      const err = 'Room Failed to create'
+      toast.error(err)
+      throw new Error(err)
     }
-
-    // setupPeerConnection()
-    // setupRemoteStream(new MediaStream())
-
-    /** 1. Add local stream to the peer connection[START] 👇 */
-    localStream.getTracks().forEach((track) => {
-      peerConnection.addTrack(track, localStream)
-    })
-    console.log('Attatched localStreams to the peer-connection')
-    /**  Add local stream to the peer connection[END] 👆 */
-
-    /** 3. Create an offer and send to the DB[START] 👇 */
-    const offer = await peerConnection.createOffer()
-    peerConnection.setLocalDescription(offer)
-    const roomWithOffer = {
-      offer: {
-        type: offer.type,
-        sdp: offer.sdp,
-      },
-    }
-    if (!roomID) return
-    await updateDoc(doc(db, 'rooms', roomID), roomWithOffer)
-    /** Create an offer and send to the DB[END] 👆 */
   }
+
+  async function handleCreateCall() {
+    let roomID = state.roomID
+    if (roomID.length === 0) {
+      roomID = await createRoomInDb()
+    }
+
+    call(roomID)
+  }
+
+  useEffect(() => {
+    const roomID = state.roomID
+    if (!reference?.peerConnection) return
+
+    const peerConnection = reference.peerConnection.current
+    if (roomID.length === 0) return
+
+    const unsubSnapshot: Unsubscribe[] = []
+    unsubSnapshot.push(
+      /** Listen for remote ice candidates */
+      onSnapshot(query(collection(db, 'rooms', roomID, 'calleeCandidates')), (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          if (change.type === 'added') {
+            const iceCandidate = new RTCIceCandidate(change.doc.data())
+            console.log(`Got new remote ICE candidate: ${iceCandidate.address}~${iceCandidate.port}`)
+            await peerConnection.addIceCandidate(iceCandidate)
+          }
+        })
+      }),
+
+      /** Listen for remote answers */
+      onSnapshot(doc(db, 'rooms', roomID), async (snapshot) => {
+        const data = snapshot.data()
+        if (!peerConnection.currentRemoteDescription && data?.answer) {
+          console.log('Got remote description: ', data.answer)
+          const rtcSessionDescription = new RTCSessionDescription(data.answer)
+          await peerConnection.setRemoteDescription(rtcSessionDescription)
+          dispatch({ type: 'SET-REMOTE-ANSWER-STATUS', payload: true })
+        }
+      }),
+    )
+
+    return () => {
+      unsubSnapshot.map((fn) => fn())
+      dispatch({ type: 'SET-RESET-TRIGGER', payload: false })
+    }
+  }, [state.roomID, state.isResetTriggered])
 
   return (
     <>
@@ -72,7 +94,7 @@ export function Create() {
 
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} className="relative z-50">
         <div className="fixed inset-0 flex w-screen items-center justify-center">
-          <Dialog.Panel className="space-y-4 border bg-white p-4">
+          <Dialog.Panel className="w-3/4 space-y-4 border bg-white p-4">
             <Dialog.Title className="text-2xl font-bold">
               {state.roomID.length === 0 && status === 'loading' ? (
                 <div className="flex items-center gap-2">
@@ -104,11 +126,11 @@ export function Create() {
                 <Tooltip text={window.location.href + state.roomID} />
               </label>
             )}
-            <div className="flex gap-4">
+            <div className="flex justify-end gap-4">
               <button className="btn" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </button>
-              <button className="btn" onClick={handleCreateRoom}>
+              <button className="btn" onClick={handleCreateCall}>
                 Create Room
               </button>
             </div>
