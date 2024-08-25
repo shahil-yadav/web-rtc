@@ -130,9 +130,11 @@ export function Create() {
               <button className="btn" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </button>
-              <button className="btn" onClick={handleCreateCall}>
-                Create Room
-              </button>
+              {state.roomID.length === 0 && (
+                <button className="btn" onClick={handleCreateCall}>
+                  Create Room
+                </button>
+              )}
             </div>
           </Dialog.Panel>
         </div>
