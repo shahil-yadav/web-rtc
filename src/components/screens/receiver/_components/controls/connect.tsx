@@ -50,7 +50,8 @@ export function Connect() {
 
     const roomID = state.roomID
     function connectionStateChangeEventListener() {
-      console.log(`Peer connection state change => ${reference?.peerConnection.current.connectionState}`)
+      if (!reference) return
+      console.log(`Peer connection state change => ${reference.peerConnection.current.connectionState}`)
       dispatch({
         type: 'SET-CONNECTION-ESTABILISHMENT-STATUS',
         payload: reference.peerConnection.current.connectionState,
