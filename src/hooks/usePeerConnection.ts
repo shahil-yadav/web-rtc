@@ -22,6 +22,13 @@ class Peer {
     })
   }
 
+  static customRegisterEventListener<K extends keyof RTCPeerConnectionEventMap>(
+    type: K,
+    callback: (ev: RTCPeerConnectionEventMap[K]) => void,
+  ) {
+    Peer.peerConnection.addEventListener(type, callback)
+  }
+
   static registerEventListeners() {
     Peer.peerConnection.addEventListener('icegatheringstatechange', function iceGatheringStateChange() {
       console.log(`ICE gathering state changed: ${Peer.peerConnection.iceGatheringState}`)
@@ -39,6 +46,10 @@ class Peer {
   static getPeerConnection() {
     return Peer.peerConnection
   }
+}
+
+export function useAddEventListener() {
+  return Peer.customRegisterEventListener
 }
 
 export function usePeerConnection() {
